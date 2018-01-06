@@ -17,8 +17,6 @@ class MainMenu : Scene() {
 	val stage = Stage(FitViewport(640f, 480f))
 	val skin = Skin(Gdx.files.internal("default_skin.json"))
 
-	var activeGame:Scene? = null // If a game is in progress, this will be it.
-
 	// Main menu.
 	val mainMenuTable = Table()
 	val newGameButton = TextButton("New Game", skin)
@@ -99,9 +97,9 @@ class MainMenu : Scene() {
 	fun startNewGame(newGamePlus:Boolean = false) {
 		// Change the 'new game' button to 'Continue'.
 		newGameButton.setText("Continue")
-		activeGame = Intro()
 		// TODO: Fade out.
-		GDXMain.SCENE_STACK.push(activeGame) // If the player pops the game, we'll be back here.
+		println("DEBUG: Going straight to DEBATE scene.")
+		GDXMain.ACTIVE_SCENE = GDXMain.DEBATE_SCENE
 		// We do NOT pop the main menu because they may want to come back here to adjust options.
 	}
 }

@@ -79,10 +79,12 @@ class Intro : Scene() {
 	}
 
 	fun nextScreen() {
-		GDXMain.SCENE_STACK.pop()
-		GDXMain.SCENE_STACK.push(MainMenu())
-		this.dispose()
-		// TODO: If we get a 'request dispose' method in main, push this instead of doing the dispose here.
+		textureIndex = 0
+		fadeDelay = 0f
+		fadeAmount = 0f
+		fadeDirection = 1f
+
+		GDXMain.ACTIVE_SCENE = GDXMain.MAIN_MENU_SCENE
 	}
 
 	override fun dispose() {

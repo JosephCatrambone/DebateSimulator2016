@@ -7,18 +7,27 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.josephcatrambone.debatesimulator.scenes.Intro;
-import com.josephcatrambone.debatesimulator.scenes.Scene;
+import com.josephcatrambone.debatesimulator.scenes.*;
 
 import java.util.Stack;
 
 public class GDXMain extends ApplicationAdapter {
-	public static final Stack<Scene> SCENE_STACK = new Stack<Scene>();
+	//public static final Stack<Scene> SCENE_STACK = new Stack<Scene>();
+	// We are NOT using a scene stack this time because there are some cyclic transitions.
+	public static Scene ACTIVE_SCENE = null;
+	public static Scene INTRO_SCENE = null;
+	public static Scene MAIN_MENU_SCENE = null;
+	public static Scene CHARACTER_SELECT_SCENE = null;
+	public static Scene BRIEFING_SCENE = null;
+	public static Scene DEBATE_SCENE = null;
+	public static Scene ELECTON_SCENE = null;
+
 	public static TextureAtlas TEXTURE_ATLAS = null; // Need to create this after OpenGL context.
-	public static Preferences PREFERENCES = Gdx.app.getPreferences("DebateSimulator2016_Prefs");
+	public static Preferences PREFERENCES = null;
 
 	@Override
 	public void create () {
+		PREFERENCES = Gdx.app.getPreferences("DebateSimulator2016_Prefs");
 		TEXTURE_ATLAS = new TextureAtlas(Gdx.files.internal("main.atlas"));
 
 		// Set up basic preferences if unset.
@@ -28,16 +37,32 @@ public class GDXMain extends ApplicationAdapter {
 		PREFERENCES.putInteger("TEXT_SPEED", 5);
 		PREFERENCES.putBoolean("SHORT_GAME", true);
 
-		SCENE_STACK.push(new Intro());
+		// Front-load all of our scenes.
+		// If this takes too much time we may have to run it async.
+		INTRO_SCENE = new Intro();
+		MAIN_MENU_SCENE = new MainMenu();
+		CHARACTER_SELECT_SCENE = new CharacterSelect();
+		BRIEFING_SCENE = new BriefingRoom();
+		DEBATE_SCENE = new Debate();
+		ELECTON_SCENE = new ElectionResults();
+
+		// Start with the intro.
+		ACTIVE_SCENE = INTRO_SCENE;
+		//ACTIVE_SCENE = DEBATE_SCENE;
 	}
 
 	@Override
 	public void render () {
-		SCENE_STACK.peek().render();
-		SCENE_STACK.peek().update(Gdx.graphics.getDeltaTime());
+		// Render
+		ACTIVE_SCENE.render();
+
+		// Logic
+		float delta = Gdx.graphics.getDeltaTime();
+		TweenManager.update(delta);
+		ACTIVE_SCENE.update(delta);
 
 		// If everything is dead, quit game.
-		if(SCENE_STACK.isEmpty()) {
+		if(ACTIVE_SCENE == null) {
 			dispose();
 			Gdx.app.exit();
 		}
@@ -45,9 +70,9 @@ public class GDXMain extends ApplicationAdapter {
 	
 	@Override
 	public void dispose () {
-		while(!SCENE_STACK.isEmpty()) {
-			SCENE_STACK.pop().dispose();
-		}
+		INTRO_SCENE.dispose();
+		MAIN_MENU_SCENE.dispose();
+
 		TEXTURE_ATLAS.dispose();
 	}
 }

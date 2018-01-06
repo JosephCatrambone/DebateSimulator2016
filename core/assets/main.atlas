@@ -1,13 +1,34 @@
 
 main.png
-size: 16,16
+size: 1024,512
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
+hillary
+  rotate: false
+  xy: 2, 247
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
 pixel_clear
   rotate: false
   xy: 2, 2
   size: 1, 1
   orig: 1, 1
+  offset: 0, 0
+  index: -1
+proctor
+  rotate: false
+  xy: 260, 264
+  size: 256, 239
+  orig: 256, 239
+  offset: 0, 0
+  index: -1
+trump
+  rotate: false
+  xy: 2, 5
+  size: 256, 240
+  orig: 256, 240
   offset: 0, 0
   index: -1
