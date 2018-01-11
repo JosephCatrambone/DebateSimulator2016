@@ -1,6 +1,6 @@
 package com.josephcatrambone.debatesimulator
 
-enum class Topics {
+enum class Topic {
 	ABORTION,
 	BUDGET_AND_ECONOMY,
 	CIVIL_RIGHTS,
@@ -27,32 +27,35 @@ enum class Topics {
 	WELFARE_AND_POVERTY 
 }
 
-data class Issue(val summary:String, val topics:Set<Topics>)
+data class Sentiment(val summary:String, val topics:Set<Topic>)
 
-class CandidateModel() {
-	private val statements = mutableListOf<String>()
-	val issueImportance = mapOf<Issue, Float>() // 0 = candidate doesn't talk about issue.
-	val issueAgreement = mapOf<Issue, Float>() // -1 = candidate does not agree with sentiment.  1 = candidate agrees with sentiment.
-	var issuesNeedUpdate = true // If the issues haven't been rebuilt after adding a statement, this is true.
-
-	fun addStatement(str: String) {
-		issuesNeedUpdate = true
-		statements.add(str)
-	}
-}
+data class Standing(val name:String, val left:String, val right:String, val sentiments:Map<Sentiment, Float>)
+// Example: 
+/*
+val financialStanding = Standing(
+	"Social Standing", 
+	"Socially Liberal", "Socially Conservative", 
+	mapOf(
+		Sentiment("Healthcare is a fundamental human right.", HEALTHCARE) to -1, // Agree = 1.0.  1 * -1 (from this mapping) = -1.  -1 = left.
+		Sentiment("Homosexuality is a choice.", PRINCIPLES_AND_VALUES) to 1, // Agree = 1.0 -> 1 * 1 = 1.  1 = Right.
+		Sentiment(
+	)
+)
+// TODO: Map the player's input strings to a -1 or 1 range for disagree to agree for each sentiment.
+*/
 
 class Demographic(
 	val populationSize:Int = 0,
 	val baseVotingLikelihood:Float = 0.5f, // The odds that a member of this group will case a vote.
-	val issueImportance:Map<Issue, Float> = mapOf<Issue, Float>(), // Issue -> 0, 1, // 0 - not important.  1 = super important.
-	val issueAgreement:Map<Issue, Float> = mapOf<Issue, Float>() // Issue -> [-1, 1] // Disagree, agree.
+	val issueImportance:Map<Sentiment, Float> = mapOf<Sentiment, Float>(), // Sentiment -> 0, 1, // 0 - not important.  1 = super important.
+	val issueAgreement:Map<Sentiment, Float> = mapOf<Sentiment, Float>() // Sentiment -> [-1, 1] // Disagree, agree.
 ) {
 	fun getFondness(candidate:CandidateModel): Float {
 		// Basic dot product.
 		// If the candidate HASN'T spoken about a very important issue, this will decrease their fondness, but only for one issue.
 		// We do this by selecting the most important issue for this group.
 		var maxAgreement = 0f // While we're iterating, also sum the max agreement possible.
-		//var (wedgeIssue, wedgeValue) = issueImportance.entries.first()
+		//var (wedgeSentiment, wedgeValue) = issueImportance.entries.first()
 		issueImportance.forEach({ _, value ->
 			maxAgreement += value
 		})

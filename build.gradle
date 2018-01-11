@@ -57,6 +57,7 @@ project(":core") {
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
         compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+		compile "com.opencsv:opencsv:3.8"
     }
 }
 
