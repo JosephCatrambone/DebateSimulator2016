@@ -1,22 +1,27 @@
 package com.josephcatrambone.debatesimulator.nlp
 
+import com.badlogic.gdx.Gdx
+import com.josephcatrambone.debatesimulator.Topic
 import java.util.*
 
 class TrumpGenerator() {
-	val topicToCFG = mutableMapOf<Topic,ContextFreeGrammar>()
+	val cfg = ContextFreeGrammar(Gdx.files.internal("trump.csv").read())
+	val topicToStartToken = mapOf(
+		Topic.ABORTION to "#ABORTION",
+		Topic.BUDGET_AND_ECONOMY to "#BUDGET#",
+		Topic.JOBS to "#JOBS#"
+	)
 
 	init {
 		// Trump generator CSV format:
 		// topic,match,rule (pipe delimited or all on different lines?)
 	}
 
-	fun generateReply(topic:String): String {
-		val sb = StringBuilder()
-		sb.append(topic)
-		while(random.nextInt(5) != 1) {
-			sb.append(" ")
-			sb.append(topic)
-		}
-		return sb.toString()
+	fun generateReply(topic:Topic): String {
+		var resp = ""
+		do {
+			resp = cfg.generateString(topicToStartToken.getOrDefault(topic, "#S#"))
+		} while(resp.length < 1)
+		return resp
 	}
 }

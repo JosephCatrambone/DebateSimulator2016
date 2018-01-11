@@ -67,12 +67,10 @@ class DelayTween(time:Float, onFinish: (Float) -> Unit) : Tween(time, onFinish) 
 class BasicTween(time:Float, val startValue:Float, val stopValue:Float, updateFunction: (Float) -> Unit) : Tween(time, updateFunction) {
 	override fun update(dt:Float) {
 		super.update(dt)
-		if(!dead) {
-			// Interpolate from 'from' to 'to'.
-			val totalTimeRatio = this.accumulator / time
-			// Calculate the stop in which we find ourselves.
-			updateFunction(totalTimeRatio*stopValue + (1.0f-totalTimeRatio)*startValue)
-		}
+		// Interpolate from 'from' to 'to'.
+		val totalTimeRatio = minOf(1.0f, this.accumulator / time)
+		// Calculate the stop in which we find ourselves.
+		updateFunction(totalTimeRatio*stopValue + (1.0f-totalTimeRatio)*startValue)
 	}
 }
 
@@ -104,12 +102,10 @@ class SequentialTween(vararg tweens:Tween): Tween(tweens.fold(0f, {acc, t -> acc
 class EaseTween(time:Float, val startValue:Float, val stopValue:Float, val ease:Float, updateFunction: (Float) -> Unit) : Tween(time, updateFunction) {
 	override fun update(dt: Float) {
 		super.update(dt)
-		if(!dead) {
-			// Interpolate from 'from' to 'to'.
-			val totalTimeRatio = Math.pow((this.accumulator / time).toDouble(), ease.toDouble()).toFloat()
-			// Calculate the stop in which we find ourselves.
-			updateFunction(totalTimeRatio*stopValue + (1.0f-totalTimeRatio)*startValue)
-		}
+		// Interpolate from 'from' to 'to'.
+		val totalTimeRatio = minOf(Math.pow((this.accumulator / time).toDouble(), ease.toDouble()).toFloat(), 1.0f)
+		// Calculate the stop in which we find ourselves.
+		updateFunction(totalTimeRatio*stopValue + (1.0f-totalTimeRatio)*startValue)
 	}
 }
 
@@ -118,19 +114,18 @@ class MultiStopTween(time:Float, val stops:FloatArray, updateFunction: (Float) -
 
 	override fun update(dt:Float) {
 		super.update(dt)
-		if(!dead) {
-			// Interpolate from 'from' to 'to'.
-			val totalTimeRatio = this.accumulator / time
-			// Calculate the stop in which we find ourselves.
-			val stopIndex:Int = (totalTimeRatio*stops.size).toInt()
-			if(stopIndex < stops.size-1) {
-				// Find the interval of THIS ratio.
-				val intervalTimeRatio = (this.accumulator - (stopIndex * stopSize)) / stopSize
-				val amount = intervalTimeRatio * stops[stopIndex + 1] + (1.0f - intervalTimeRatio) * stops[stopIndex]
-				updateFunction(amount)
-			} else {
-				updateFunction(stops.last())
-			}
+
+		// Interpolate from 'from' to 'to'.
+		val totalTimeRatio = this.accumulator / time
+		// Calculate the stop in which we find ourselves.
+		val stopIndex:Int = (totalTimeRatio*stops.size).toInt()
+		if(stopIndex < stops.size-1) {
+			// Find the interval of THIS ratio.
+			val intervalTimeRatio = (this.accumulator - (stopIndex * stopSize)) / stopSize
+			val amount = intervalTimeRatio * stops[stopIndex + 1] + (1.0f - intervalTimeRatio) * stops[stopIndex]
+			updateFunction(amount)
+		} else {
+			updateFunction(stops.last())
 		}
 	}
 }

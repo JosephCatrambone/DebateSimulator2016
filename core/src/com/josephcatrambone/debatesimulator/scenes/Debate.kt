@@ -25,7 +25,7 @@ class Debate : Scene() {
 	val skin = Skin(Gdx.files.internal("default_skin.json"))
 
 	// NLP components.
-	val trumpAI = TrumpGenerator(arrayOf())
+	val trumpAI = TrumpGenerator()
 
 	// Display things.
 	val table = Table(skin)
@@ -82,7 +82,7 @@ class Debate : Scene() {
 		TweenManager.add(BasicTween(TRANSITION_TIME, trump.color.a, 1.0f, { f -> trump.setColor(1.0f, 1.0f, 1.0f, f)}))
 		TweenManager.add(BasicTween(TRANSITION_TIME, proctor.y, PROCTOR_DEFOCUS_Y, { f -> proctor.y = f }))
 		text.isDisabled = true
-		text.text = "Trump: "
+		text.text = ""
 	}
 
 	fun makePlayerActive() {
@@ -103,7 +103,7 @@ class Debate : Scene() {
 		TweenManager.add(BasicTween(TRANSITION_TIME, trump.color.a, DEFOCUS_ALPHA, { f -> trump.setColor(1.0f, 1.0f, 1.0f, f)}))
 		TweenManager.add(BasicTween(TRANSITION_TIME, proctor.y, PROCTOR_ACTIVE_Y, { f -> proctor.y = f }))
 		text.isDisabled = true
-		text.text = "Proctor: "
+		text.text = ""
 	}
 
 	override fun render() {
@@ -126,7 +126,7 @@ class Debate : Scene() {
 			if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
 				// Finish and submit our response.
 				// Now we go to the player or the proctor.
-				makeTrumpActive(trumpAI.generateReply("hotdogs"))
+				makeTrumpActive(trumpAI.generateReply(Topic.JOBS))
 			}
 		} else { // Being prompted.
 			val s = proctorQuestions.last()
