@@ -32,7 +32,21 @@ class MultinomialNBClassifierTest {
 			"",
 		""
 		)
-		val antiRegulation = arrayOf<String>()
+		val antiRegulation = arrayOf<String>(
+			"The administration took this action with great regret, because it's clear that the massive deficits our government runs is one of the root causes of our profound economic problems, and for too many years this process has come too easily for us.",
+			"We've lived beyond our means and then financed our extravagance on the backs of the American people.",
+			"The clear message I received in the election campaign is that we must gain control of this inflationary monster.",
+			"Within moments of taking the oath of office, I placed a freeze on the hiring of civilian employees in the Federal Government.",
+			"Two days later I issued an order to cut down on government travel, reduce the number of consultants to the government, stopped the procurement of certain items, and called on my appointees to exercise restraint in their own offices.",
+			"Yesterday I announced the elimination of remaining Federal controls on U. S. oil production and marketing.",
+			"Today I'm announcing two more actions to reduce the size of the Federal Government.",
+			"First, I'm taking major steps toward the elimination of the Council on Wage and Price Stability. This Council has been a failure.",
+			"It has been totally ineffective in controlling inflation, and it's imposed unnecessary burdens on labor and business. Therefore, I am now ending the wage and price program of the Council.",
+			"I am eliminating the staff that carries out its wage/pricing activities, and I'm asking Congress to rescind its budget, saving the taxpayers some million a year.",
+			"My second decision today is a directive ordering key Federal agencies to freeze pending regulations for 60 days.",
+			"This action gives my administration time to start a new regulatory oversight process and also prevents certain last-minute regulatory decisions of the previous administration, the so-called midnight regulations, from taking effect without proper review and approval.",
+			"All of us should remember that the Federal Government is not some mysterious institution comprised of buildings, files, and paper. The people are the government. What we create we ought to be able to control."
+		)
 		val classifier = MultinomialNBClassifier(indexToWord.size, 2)
 	}
 
