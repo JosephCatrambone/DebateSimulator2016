@@ -19,3 +19,54 @@ https://www.crowdflower.com/wp-content/uploads/2016/03/Political-media-DFE.csv
 Progressive issues sentiment analysis
 Contributors viewed tweets regarding a variety of left-leaning issues like legalization of abortion, feminism, Hillary Clinton, etc. They then classified if the tweets in question were for, against, or neutral on the issue (with an option for none of the above). After this, they further classified each statement as to whether they expressed a subjective opinion or gave facts.
 https://www.crowdflower.com/wp-content/uploads/2016/03/progressive-tweet-sentiment.csv
+
+
+
+Alignments:
+Regulation	vs	Deregulation
+68
+You side moderately towards “Regulation”, meaning you believe the government should regulate business activity to ensure no one is taking advantage of the system. This theme is most important to you.
+
+Left	vs	Right
+90
+You side extremely towards “Left”, meaning you very strongly support policies that promote social and economic equality. This theme is most important to you.
+
+Religious	vs	Secular
+84
+You side strongly towards “Secular”, meaning you strongly support policies that reflect a separation of church and state. This theme is most important to you.
+
+Small Government	vs	Big Government
+100
+You side extremely towards “Big Government”, meaning you very strongly believe the government should do more to address social inequality, corruption, and assistance for its citizens. This theme is more important to you.
+
+Collectivism	vs	Individualism
+88
+You side strongly towards “Collectivism”, meaning you strongly believe policy should protect and support the best interests of all citizens. This theme is more important to you.
+
+Traditional	vs	Progressive
+92
+You side extremely towards “Progressive”, meaning you very strongly believe we should be a nation that values personal freedom, expression, and diversity. This theme is more important to you.
+
+Laissez-faire	vs	Keynesian
+90
+You side extremely towards “Keynesian”, meaning you very strongly believe the government should provide economic assistance to stabilize the economy. This theme is more important to you.
+
+Multiculturalism	vs	Assimilation
+50
+You side moderately towards “Multiculturalism”, meaning you believe we should celebrate and embrace cultural diversity. This theme is more important to you.
+
+Tough	vs	Tender
+96
+You side extremely towards “Tender”, meaning you very strongly believe in showing compassion, empathy, and rehabilitation for small-time criminals or those struggling with addiction. This theme is somewhat important to you.
+
+Privacy	vs	Security
+50
+You side moderately towards “Privacy”, meaning you believe the government should not undermine the rights and privacy of its citizens under the guise of national security. This theme is somewhat important to you.
+
+Politically Correct	vs	Politically Incorrect
+24
+You side slightly towards “Politically Correct”, meaning you more often believe we should not use language or behavior which could offend, marginalize, or insult those who are disadvantaged or discriminated against. This theme is somewhat important to you.
+
+Libertarian	vs	Authoritarian
+2
+You are a centrist on Libertarian and Authoritarian issues. This theme is more important to you.

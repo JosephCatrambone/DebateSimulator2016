@@ -1,4 +1,4 @@
-package com.josephcatrambone.debatesimulator2016.nlp
+package com.josephcatrambone.debatesimulator.nlp
 
 import java.io.Serializable
 import kotlin.math.*

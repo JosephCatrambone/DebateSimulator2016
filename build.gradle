@@ -51,9 +51,7 @@ project(":desktop") {
 project(":core") {
     apply plugin: "kotlin"
 
-	sourceSets.test.kotlin.srcDirs = ["test/"]
-
-    dependencies {
+	dependencies {
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
         compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
