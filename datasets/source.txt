@@ -1,0 +1,21 @@
+https://www.crowdflower.com/data-for-everyone/
+
+Economic News Article Tone and Relevance
+Contributors read snippets of news articles. They then noted if the article was relevant to the US economy and, if so, what the tone of the article was. Tone was judged on a 9 point scale (from 1 to 9, with 1 representing the most negativity). Dataset contains these judgments as well as the dates, source titles, and text. Dates range from 1951 to 2014.
+https://www.crowdflower.com/wp-content/uploads/2016/03/Full-Economic-News-DFE-839861.csv
+
+Sentiment analyses of single words or short phrases
+Contributors looked at four words or bigrams (bigrams are just word pairs) and ranked the most positive and most negative ones in each set. For example, they saw quartets like “nasty, failure, honored, females” and chose which word was the most positive and most negative. Interestingly, each set was graded by eight contributors instead of the usual three. Dataset contains all 3,523 rows, but has 28K judgments.
+https://www.crowdflower.com/wp-content/uploads/2016/03/sentiment-words-DFE-785960.csv
+
+First GOP debate sentiment analysis
+We looked through tens of thousands of tweets about the early August GOP debate in Ohio and asked contributors to do both sentiment analysis and data categorization. Contributors were asked if the tweet was relevant, which candidate was mentioned, what subject was mentioned, and then what the sentiment was for a given tweet. We’ve removed the non-relevant messages from the uploaded dataset.
+https://www.crowdflower.com/wp-content/uploads/2016/03/GOP_REL_ONLY.csv
+
+Classification of political social media
+Contributors looked at thousands of social media messages from US Senators and other American politicians to classify their content. Messages were broken down into audience (national or the tweeter’s constituency), bias (neutral/bipartisan, or biased/partisan), and finally tagged as the actual substance of the message itself (options ranged from informational, announcement of a media appearance, an attack on another candidate, etc.)
+https://www.crowdflower.com/wp-content/uploads/2016/03/Political-media-DFE.csv
+
+Progressive issues sentiment analysis
+Contributors viewed tweets regarding a variety of left-leaning issues like legalization of abortion, feminism, Hillary Clinton, etc. They then classified if the tweets in question were for, against, or neutral on the issue (with an option for none of the above). After this, they further classified each statement as to whether they expressed a subjective opinion or gave facts.
+https://www.crowdflower.com/wp-content/uploads/2016/03/progressive-tweet-sentiment.csv
