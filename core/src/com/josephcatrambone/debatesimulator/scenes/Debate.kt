@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.josephcatrambone.debatesimulator.*
 import com.josephcatrambone.debatesimulator.nlp.*
+import com.opencsv.CSVReader
 
 class Debate : Scene() {
 	val CHARACTER_DEBOUNCE = 10 // There must be at least this many character printed by the prompt before advancing.
@@ -39,9 +40,11 @@ class Debate : Scene() {
 
 	// Gameplay elements.
 	var playerSkipKey = false // Player has requested a skip.
+	val prompts = mutableListOf<Pair<Topic, String>>()
 	val proctorQuestions = mutableListOf<String>() // Use this to track what questions are asked.
 	val playerResponses = mutableListOf<String>()
 	val trumpResponses = mutableListOf<String>()
+	var lastPromptTopic: Topic = Topic.JOBS
 	var playerResponding = false // If both of these are false, the proctor is asking a question.
 	var trumpResponding = false
 
@@ -67,16 +70,32 @@ class Debate : Scene() {
 		table.setFillParent(true)
 		stage.addActor(table)
 
+		// Load proctor questions.
+		loadPrompts()
+
+		// Fire first question.
 		proctor.setPosition(stage.width/2, PROCTOR_DEFOCUS_Y, Align.center)
 		proctor.setAlign(Align.center)
 		stage.addActor(proctor)
 
-		makeProctorActive("If you were a hotdog and you were starving, would you eat yourself?")
+		// Initial prompt.
+		val prompt = prompts.removeAt(0)
+		lastPromptTopic = prompt.first
+		proctorQuestions.add(prompt.second)
+		makeProctorActive()
 	}
 
-	fun makeTrumpActive(response:String) {
+	fun loadPrompts() {
+		val reader = CSVReader(Gdx.files.internal("questions.csv").reader())
+		val entries = reader.readAll()
+		entries.forEach({ topic_question ->
+			prompts.add(Pair(Topic.valueOf(topic_question[0]), topic_question[1]))
+		})
+	}
+
+	// START: These are all ui methods.  Don't use them for control logic.
+	fun makeTrumpActive() {
 		trumpResponding = true
-		trumpResponses.add(response)
 		// Fade out the player, fade in Trump, move away the proctor.
 		TweenManager.add(BasicTween(TRANSITION_TIME, player.color.a, DEFOCUS_ALPHA, { f -> player.setColor(1.0f, 1.0f, 1.0f, f)}))
 		TweenManager.add(BasicTween(TRANSITION_TIME, trump.color.a, 1.0f, { f -> trump.setColor(1.0f, 1.0f, 1.0f, f)}))
@@ -94,10 +113,9 @@ class Debate : Scene() {
 		text.text = ""
 	}
 
-	fun makeProctorActive(question:String) {
+	fun makeProctorActive() {
 		trumpResponding = false
 		playerResponding = false
-		proctorQuestions.add(question)
 		// Fade out both contestants and tween in the proctor.
 		TweenManager.add(BasicTween(TRANSITION_TIME, player.color.a, DEFOCUS_ALPHA, { f -> player.setColor(1.0f, 1.0f, 1.0f, f)}))
 		TweenManager.add(BasicTween(TRANSITION_TIME, trump.color.a, DEFOCUS_ALPHA, { f -> trump.setColor(1.0f, 1.0f, 1.0f, f)}))
@@ -105,6 +123,7 @@ class Debate : Scene() {
 		text.isDisabled = true
 		text.text = ""
 	}
+	// END: UI methods.
 
 	override fun render() {
 		Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
@@ -120,13 +139,18 @@ class Debate : Scene() {
 			val s = trumpResponses.last()
 			val done = updateTextDisplay(delta, s)
 			if(done) {
-				makeProctorActive("This is another fucking prompt.")
+				// Trump has finished his thing.  Select a new prompt at random.
+				val prompt = prompts.removeAt(0)
+				lastPromptTopic = prompt.first
+				proctorQuestions.add(prompt.second)
+				makeProctorActive()
 			}
 		} else if(playerResponding) {
 			if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
 				// Finish and submit our response.
 				// Now we go to the player or the proctor.
-				makeTrumpActive(trumpAI.generateReply(Topic.JOBS))
+				trumpResponses.add(trumpAI.generateReply(lastPromptTopic))
+				makeTrumpActive()
 			}
 		} else { // Being prompted.
 			val s = proctorQuestions.last()
