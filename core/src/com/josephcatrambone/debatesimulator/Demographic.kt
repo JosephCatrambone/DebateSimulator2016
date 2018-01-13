@@ -1,41 +1,41 @@
 package com.josephcatrambone.debatesimulator
 
-enum class Topic {
-	ABORTION,
-	BUDGET_AND_ECONOMY,
-	CIVIL_RIGHTS,
-	CORPORATIONS,
-	CRIME,
-	DRUGS,
-	EDUCATION,
-	ENERGY_AND_OIL,
-	ENVIRONMENT,
-	FAMILIES_AND_CHILDREN,
-	FOREIGN_POLICY,
-	FREE_TRADE,
-	GOVERNMENT_REFORM,
-	GUN_CONTROL,
-	HEALTHCARE,
-	HOMELAND_SECURITY,
-	IMMIGRATION,
-	INFRASTRUCTURE_AND_TECHNOLOGY,
-	JOBS,
-	PRINCIPLES_AND_VALUES,
-	SOCIAL_SECURITY,
-	TAX_REFORM,
-	WAR_AND_PEACE,
-	WELFARE_AND_POVERTY 
-}
-
-data class Standing(val left:String, val right:String) // AKA Theme
-data class Sentiment(val summary:String, val direction:Float, val topics:Set<Topic>, val standing:Standing)
-// Example: summary = Should the government increase environmental regulations to prevent climate change?
+import com.josephcatrambone.debatesimulator.nlp.MultinomialNBClassifier
+import com.josephcatrambone.debatesimulator.nlp.Tokenizer
+import java.io.Serializable
 
 class Demographic(
-	val populationSize:Int = 0,
-	val baseVotingLikelihood:Float = 0.5f, // The odds that a member of this group will case a vote.
-	val issueImportance:Map<Sentiment, Float> = mapOf<Sentiment, Float>(), // Sentiment -> 0, 1, // 0 - not important.  1 = super important.
-	val issueAgreement:Map<Sentiment, Float> = mapOf<Sentiment, Float>() // Sentiment -> [-1, 1] // Disagree, agree.
-) {
+	val populationSize:Int,
+	val baseVotingLikelihood:Float, // The odds that a member of this group will case a vote.
+	val tokenizer: Tokenizer,
+	val likePlayerClassifier:MultinomialNBClassifier, // For the classifier, feature 0 should be dislike, 1 should be like.
+	val demographicName:String,
+	val demographicHelpText:String,
+	var sentimentTowardsPlayer: Float = 0.5f // 0 = dislike.  1 = like.
+) : Serializable {
 
+	fun updateSentiment(statements:List<String>): Float { // Returns net change in sentiment.  0 -> 1 really dislike to really like.
+		val startSentiment = sentimentTowardsPlayer
+
+		var deltaSentiment = 0.0f
+		var dislikeAccumulator = 0.0f
+		var likeAccumulator = 0.0f
+		val tokens = tokenizer.run(statements.toTypedArray())
+		val preds = tokens.map { tok -> likePlayerClassifier.probabilities(tok) }
+
+		// TODO: Maybe we should take the max sentiment and not the average sentiment.
+		preds.forEach({sentimentClasses ->
+			dislikeAccumulator += sentimentClasses[0]
+			likeAccumulator += sentimentClasses[1]
+		})
+		// Roll it all together using some maths.
+		dislikeAccumulator /= preds.size
+		likeAccumulator /= preds.size
+
+		// Half old sentiment.  Half new.
+		val newSentiment = sentimentTowardsPlayer*0.5f + (-dislikeAccumulator + likeAccumulator)*0.5f
+		deltaSentiment = newSentiment - startSentiment
+		sentimentTowardsPlayer = newSentiment
+		return deltaSentiment
+	}
 }

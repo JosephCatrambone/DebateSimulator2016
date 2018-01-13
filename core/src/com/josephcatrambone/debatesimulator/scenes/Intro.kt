@@ -12,9 +12,11 @@ class Intro : Scene() {
 	val batch = SpriteBatch()
 
 	val xoanaTexture = Texture(Gdx.files.internal("xoana.png"))
-	val awfulJamsTexture = Texture(Gdx.files.internal("weird_history.jpg"))
-	val teamTexture = Texture(Gdx.files.internal("xoana.png"))
-	val textures = arrayOf(xoanaTexture, awfulJamsTexture, teamTexture)
+	val awfulJamsTexture = Texture(Gdx.files.internal("awfuljams.png"))
+	val awfulWinterJam = Texture(Gdx.files.internal("awj2018.png"))
+	val spaghetti = Texture(Gdx.files.internal("spaghetti.png"))
+	val weirdHistory = Texture(Gdx.files.internal("weird_history.png"))
+	val textures = arrayOf(xoanaTexture, awfulJamsTexture, awfulWinterJam, spaghetti, weirdHistory)
 
 	var textureIndex = 0
 	var fadeDelay = 0f

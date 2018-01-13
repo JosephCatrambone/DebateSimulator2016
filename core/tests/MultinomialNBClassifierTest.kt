@@ -1,16 +1,103 @@
 
+import com.josephcatrambone.debatesimulator.Demographic
 import org.junit.Test
 import org.junit.Assert.*
 import com.josephcatrambone.debatesimulator.nlp.MultinomialNBClassifier
+import com.josephcatrambone.debatesimulator.nlp.Tokenizer
+import java.io.File
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 
 class MultinomialNBClassifierTest {
 
 	val indexToWord = arrayOf<String>()
 
+	fun saveDemographic(dem:Demographic, fname:String) {
+		val objOut = ObjectOutputStream(File(fname).outputStream())
+		objOut.writeObject(dem)
+		objOut.close()
+	}
+
 	@Test
 	fun testNBClassify() {
 		val classifier = MultinomialNBClassifier(indexToWord.size, 2)
 
+	}
+
+	@Test
+	fun testSaveNBClassifier() {
+		val classifier = MultinomialNBClassifier(4, 2)
+		classifier.fit(arrayOf(
+			floatArrayOf(1f, 1f, 0f, 0f),
+			floatArrayOf(1f, 0f, 1f, 0f),
+			floatArrayOf(0f, 1f, 0f, 1f),
+			floatArrayOf(0f, 0f, 1f, 1f)
+		), intArrayOf(
+				0,
+				0,
+				1,
+				1
+		))
+
+		assertEquals(0, classifier.predict(floatArrayOf(1f, 0f, 0f, 0f)))
+
+		// Save
+		val obout = ObjectOutputStream(File("classifier_test.out").outputStream())
+		obout.writeObject(classifier)
+		obout.close()
+
+		// Restore
+		val obin = ObjectInputStream(File("classifier_test.out").inputStream())
+		val cls = obin.readObject() as MultinomialNBClassifier
+		obin.close()
+
+		assertEquals(0, cls.predict(floatArrayOf(1f, 0f, 0f, 0f)))
+	}
+
+	@Test
+	fun buildGunNutsDemographic() {
+		val dislikeStatements = arrayOf(
+				"Guns are stupid.",
+				"Thousands of innocent people are killed every year by guns.",
+				"Thousands of guilty people are killed every year by guns in ways that are not cool.",
+				"Gun violence is the leading cause of deaths in the developed world.",
+				"Bans significantly reduce gun violence.",
+				"Gun buyback programs have been shown effective in other countries.",
+				"We can't let more innocent children be killed by school shootings."
+		)
+
+		val likeStatements = arrayOf(
+				"Man, I love guns.",
+				"I bought a gun for my guns.",
+				"I believe in our second amendment rights.",
+				"Gun control is for wusses.",
+				"That grandma needed a gun.",
+				"Toddlers should be better trained in the use of automatic weapons.",
+				"Safety and supervision are paramount if you're a coward.",
+				"Personal freedoms count more than the lives of other people.",
+				"I have several handguns myself.",
+				"My favorite part of the gun is the gun part of the gun."
+		)
+
+		val examples = dislikeStatements.plus(likeStatements)
+		val labels = IntArray(examples.size, { i -> if(i < dislikeStatements.size) { 0 } else { 1 }})
+
+		val tokenizer = Tokenizer(examples)
+		val sentiment = MultinomialNBClassifier(tokenizer.numTokens, 2)
+		sentiment.fit(tokenizer.run(examples), labels)
+
+		val gunNuts = Demographic(
+			1000000,
+			0.7f,
+			tokenizer,
+			sentiment,
+			"Gun Nuts",
+			"They really love guns.  Try not to say 'buyback' or 'violence' or 'shootings'."
+		)
+
+		val dSentiment = gunNuts.updateSentiment(listOf("Guns are for morons.", "Farmers love guns.", "Violence is bad."))
+
+		saveDemographic(gunNuts, "gunnuts.demographic")
 	}
 
 	@Test

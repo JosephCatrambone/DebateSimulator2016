@@ -1,10 +1,15 @@
 package com.josephcatrambone.debatesimulator.nlp
 
+import java.io.InputStream
 import java.io.Serializable
+import java.util.*
 
 class Tokenizer : Serializable {
 	val indexToWord: Array<String>
-	val wordToIndex: HashMap<String,Int>
+	val wordToIndex: Map<String,Int>
+
+	val numTokens:Int
+		get() { return indexToWord.size }
 
 	constructor(inStream: InputStream) {
 		// Load dictionary from words.txt.
@@ -23,7 +28,13 @@ class Tokenizer : Serializable {
 	}
 
 	constructor(sentences: Array<String>) {
-		
+		val words = mutableSetOf<String>()
+		sentences.forEach({ s ->
+			words.addAll(split(s))
+		})
+
+		indexToWord = words.toTypedArray()
+		wordToIndex = mapOf<String, Int>(*indexToWord.mapIndexed { index, s -> Pair(s, index) }.toTypedArray())
 	}
 
 	fun split(sentence: String): Array<String> {
@@ -37,20 +48,29 @@ class Tokenizer : Serializable {
 		return tokens.toTypedArray()
 	}
 
-	fun tokenize(words: Array<String>, missingClassIndex:Int=0, numberClassIndex:Int=1): IntArray {
+	fun tokenize(words: Array<String>): IntArray {
 		// Given a bunch of words, look them up and produce an array of integers.
 		// Iterate over tokens and check for special classes like '1st', numbers, and names.
-		return words.map( { s ->
-			if(s.toCharArray().all { c -> c.isDigit() }) {
-				numberClassIndex
-			//} else if(s.length > 2 && (s.endsWith("st") || s.endsWith("nd") || s.endsWith("rd") || s.endsWith("th")) && s.substring(0, s.length-2).all { c -> c.isDigit() }) {
-			} else {
-				if(this.wordToIndex.containsKey(s)) {
-					wordToIndex[s]!!
-				} else {
-					missingClassIndex
-				}
+		val res = mutableListOf<Int>()
+		words.forEach { w ->
+			if(wordToIndex.containsKey(w)) {
+				res.add(wordToIndex[w]!!)
 			}
-		}).toIntArray()
+		}
+		return res.toIntArray()
+	}
+
+	fun vectorize(tokens: IntArray): FloatArray {
+		val fa = FloatArray(indexToWord.size)
+		tokens.filter { t -> t >= 0 && t < indexToWord.size }.forEach { t -> fa[t] += 1.0f }
+		return fa
+	}
+
+	fun run(sentence:String): FloatArray {
+		return vectorize(tokenize(split(sentence)))
+	}
+
+	fun run(sentences: Array<String>): Array<FloatArray> {
+		return sentences.map { sentence -> vectorize(tokenize(split(sentence))) }.toTypedArray()
 	}
 }

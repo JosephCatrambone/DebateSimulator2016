@@ -32,7 +32,7 @@ class NaivePoliticalNGramDetector {
 	)
 
 	val liberalRegex = listOf(
-		Regex("bush(-era)?\stax cuts( for the rich)?", RegexOption.IGNORE_CASE),
+		Regex("bush(-era)? tax cuts( for the rich)?", RegexOption.IGNORE_CASE),
 		Regex("systemic racism", RegexOption.IGNORE_CASE),
 		Regex("freedom (of|to)? (choice|choose)?", RegexOption.IGNORE_CASE),
 		Regex("black lives matter", RegexOption.IGNORE_CASE),
@@ -45,7 +45,7 @@ class NaivePoliticalNGramDetector {
 	* Then goes through the liberal list.  For each hit, increases the strength based on the location of the regex.
 	* Then compares the hits.  If it's one sided, confidence is high.  If it's not, confidence is low.  
 	*/
-	fun classifySentiment(s:String): Pair(Float, Float) {
-		
+	fun classifySentiment(s:String): Pair<Float, Float> {
+		return Pair(0f, 0f)
 	}
 }
