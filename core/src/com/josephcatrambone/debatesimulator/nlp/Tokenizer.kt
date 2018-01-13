@@ -5,6 +5,11 @@ import java.io.Serializable
 import java.util.*
 
 class Tokenizer : Serializable {
+	companion object {
+		private val serialVersionUid: Long = 282480326079L
+	}
+
+
 	val indexToWord: Array<String>
 	val wordToIndex: Map<String,Int>
 

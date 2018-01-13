@@ -5,6 +5,10 @@ import kotlin.math.*
 
 class MultinomialNBClassifier(val numFeatures:Int, val numClasses:Int, val alpha:Float=1.0f) : Serializable {
 
+	companion object {
+		private val serialVersionUid: Long = 220419036277L
+	}
+
 	// P(a|b) = P(b|a)*P(a) /
 	// Probability word i occurs in document from class C = p(w_i | C)
 	// Probability doc contains all words w given class C = p(D|C) = PROD{ p(w_i | C) }
