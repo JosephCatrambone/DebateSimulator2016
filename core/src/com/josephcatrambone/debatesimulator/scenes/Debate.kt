@@ -2,6 +2,7 @@ package com.josephcatrambone.debatesimulator.scenes
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -30,6 +31,7 @@ class Debate : Scene() {
 
 	// Display things.
 	val table = Table(skin)
+	val backdrop = Image(GDXMain.TEXTURE_ATLAS.findRegion("backdrop"))
 	val proctor = Image(GDXMain.TEXTURE_ATLAS.findRegion("proctor"))
 	val player = Image(GDXMain.TEXTURE_ATLAS.findRegion("hillary"))
 	val trump = Image(GDXMain.TEXTURE_ATLAS.findRegion("trump"))
@@ -37,6 +39,8 @@ class Debate : Scene() {
 	val timer = ProgressBar(0f, 1f, 0.01f, false, skin)
 	var currentCharacter = 0 // used when gradually showing the text.
 	var timeToNextCharacter = 0f
+	val playerFeedbackLabelStart = Pair(-50f, 480f-150f)
+	val playerFeedbackLabelEnd = Pair(100f, playerFeedbackLabelStart.second) // Only X motion.
 
 	// Gameplay elements.
 	var playerSkipKey = false // Player has requested a skip.
@@ -54,6 +58,11 @@ class Debate : Scene() {
 		//proctor.setBounds(0f, 0f, 128f, 128f)
 		// If proctor is an image:
 		//player.drawable = TextureRegionDrawable()
+
+		// HACK: Lazy shit maneuver: just drop the backdrop actor at 0,0 because that's where the root of the scene is
+		// and, coincidentally, it will align with the players.
+		backdrop.setPosition(0f, stage.height/2f, Align.bottomLeft)
+		stage.addActor(backdrop)
 
 		// Table layout:
 		// player | bars | trump
@@ -146,8 +155,15 @@ class Debate : Scene() {
 				makeProctorActive()
 			}
 		} else if(playerResponding) {
+			// Ready to submit?
 			if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
 				// Finish and submit our response.
+				// TODO: Do we want to split this by sentence?
+				val (demo, change) = GDXMain.ELECTON_SCENE.updateAllDemographics(text.text)
+
+				// Show user feedback: popup with demographic and delta.
+				showDemographicFeedbackPopup(demo, change)
+
 				// Now we go to the player or the proctor.
 				trumpResponses.add(trumpAI.generateReply(lastPromptTopic))
 				makeTrumpActive()
@@ -159,6 +175,48 @@ class Debate : Scene() {
 				makePlayerActive()
 			}
 		}
+	}
+
+	private fun showDemographicFeedbackPopup(demo: String, change: Float) {
+		// Create a label, add it to the actors, create a tween where it pops up, play a sound.
+		var deltaText = "$demo: "
+		var popupColor = Color(0.1f, 0.1f, 0.1f, 1f)
+
+		if(change > 0) {
+			deltaText += "+$change"
+			popupColor = Color(0.1f, 1.0f, 0.1f, 1.0f)
+		} else if(change < 0) {
+			deltaText += "$change"
+			popupColor = Color(1.0f, 0.1f, 0.1f, 1.0f)
+		} else {
+			println("DEBUG: Statement did not change demographics.  What the fuck?")
+			return // Bail early if there's no difference.
+		}
+
+		// TODO: Add font name and color.
+		val label = Label(deltaText, skin)
+		label.style.fontColor = popupColor
+		label.setPosition(playerFeedbackLabelStart.first, playerFeedbackLabelStart.second)
+		stage.addActor(label)
+		TweenManager.add(SequentialTween(
+			// Slide in.
+			EaseTween(1f, 0f, 1f, 0.5f, { t ->
+				label.setPosition(
+					playerFeedbackLabelEnd.first*t + playerFeedbackLabelStart.first*(1f-t),
+					playerFeedbackLabelEnd.second*t + playerFeedbackLabelStart.second*(1f-t)
+				)
+			}),
+			// Fade out.
+			EaseTween(1f, 1f, 0f, 0.5f, { t ->
+				val col = label.color
+				label.setColor(col.r, col.g, col.b, t)
+			}),
+			// Remove from stage.
+			DelayTween(1f, {
+				label.remove()
+			})
+		))
+		// TODO: Play sound.
 	}
 
 	fun updateTextDisplay(delta:Float, s:String): Boolean {

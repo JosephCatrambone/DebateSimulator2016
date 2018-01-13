@@ -18,7 +18,6 @@ class Demographic(
 		private val serialVersionUid: Long = 1678148210794L
 	}
 
-
 	fun updateSentiment(statements:List<String>): Float { // Returns net change in sentiment.  0 -> 1 really dislike to really like.
 		val startSentiment = sentimentTowardsPlayer
 

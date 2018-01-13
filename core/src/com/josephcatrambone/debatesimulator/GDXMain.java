@@ -15,12 +15,12 @@ public class GDXMain extends ApplicationAdapter {
 	//public static final Stack<Scene> SCENE_STACK = new Stack<Scene>();
 	// We are NOT using a scene stack this time because there are some cyclic transitions.
 	public static Scene ACTIVE_SCENE = null;
-	public static Scene INTRO_SCENE = null;
-	public static Scene MAIN_MENU_SCENE = null;
-	public static Scene CHARACTER_SELECT_SCENE = null;
-	public static Scene BRIEFING_SCENE = null;
-	public static Scene DEBATE_SCENE = null;
-	public static Scene ELECTON_SCENE = null;
+	public static Intro INTRO_SCENE = null;
+	public static MainMenu MAIN_MENU_SCENE = null;
+	public static CharacterSelect CHARACTER_SELECT_SCENE = null;
+	public static BriefingRoom BRIEFING_SCENE = null;
+	public static Debate DEBATE_SCENE = null;
+	public static ElectionResults ELECTON_SCENE = null;
 
 	public static TextureAtlas TEXTURE_ATLAS = null; // Need to create this after OpenGL context.
 	public static Preferences PREFERENCES = null;
