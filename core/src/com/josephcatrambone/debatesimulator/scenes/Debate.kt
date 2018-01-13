@@ -13,6 +13,7 @@ import com.josephcatrambone.debatesimulator.nlp.*
 import com.opencsv.CSVReader
 
 class Debate : Scene() {
+	val RESPONSE_TIME = 60f
 	val CHARACTER_DEBOUNCE = 10 // There must be at least this many character printed by the prompt before advancing.
 	val TEXT_SPEED_DIVISOR = 100f // We read PREFERENCES.getInteger("TEXT_SPEED") and divide by this for the chardelay.
 	val TRANSITION_TIME = 0.6f
@@ -36,7 +37,7 @@ class Debate : Scene() {
 	val player = Image(GDXMain.TEXTURE_ATLAS.findRegion("hillary"))
 	val trump = Image(GDXMain.TEXTURE_ATLAS.findRegion("trump"))
 	val text = TextArea("", skin) // Use text.text, not text.messageText
-	val timer = ProgressBar(0f, 1f, 0.01f, false, skin)
+	val timer = ProgressBar(0f, RESPONSE_TIME, 0.01f, false, skin)
 	var currentCharacter = 0 // used when gradually showing the text.
 	var timeToNextCharacter = 0f
 
@@ -143,9 +144,11 @@ class Debate : Scene() {
 		stage.act(delta)
 
 		if(trumpResponding) {
+			timer.value = timer.value - delta // TODO: Is this meaningful here?
 			val s = trumpResponses.last()
 			val done = updateTextDisplay(delta, s)
 			if(done) {
+				timer.value = RESPONSE_TIME
 				// Trump has finished his thing.  Select a new prompt at random.
 				val prompt = prompts.removeAt(0)
 				lastPromptTopic = prompt.first
@@ -153,23 +156,28 @@ class Debate : Scene() {
 				makeProctorActive()
 			}
 		} else if(playerResponding) {
+			timer.value = timer.value - delta
 			// Ready to submit?
-			if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+			if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || timer.value <= 0f) {
 				// Finish and submit our response.
 				// TODO: Do we want to split this by sentence?
 				val (demo, change) = GDXMain.ELECTON_SCENE.updateAllDemographics(text.text)
+				playerResponses.add(text.text)
 
 				// Show user feedback: popup with demographic and delta.
 				showDemographicFeedbackPopup(demo, change)
 
 				// Now we go to the player or the proctor.
+				timer.value = RESPONSE_TIME
 				trumpResponses.add(trumpAI.generateReply(lastPromptTopic))
 				makeTrumpActive()
 			}
-		} else { // Being prompted.
+		} else { // Proctor active.
 			val s = proctorQuestions.last()
 			val done = updateTextDisplay(delta, s)
 			if(done) {
+				// Refil the timer.
+				timer.value = RESPONSE_TIME
 				makePlayerActive()
 			}
 		}
@@ -214,13 +222,13 @@ class Debate : Scene() {
 				label.setPosition(x,y)
 			}),
 			// Fade out.
-			BasicTween(1f, 1f, 0f, { t ->
+			BasicTween(5f, 1f, 0f, { t ->
 				val col = label.color
 				label.setColor(col.r, col.g, col.b, t*t) // Square fade for the text.
 				labelBackdrop.setColor(col.r, col.g, col.b, t) // Linear fade for the backdrop
 			}),
 			// Remove from stage.
-			DelayTween(1f, {
+			DelayTween(0.1f, {
 				label.remove()
 				labelBackdrop.remove()
 			})
