@@ -4,11 +4,8 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
-import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.*
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.josephcatrambone.debatesimulator.*
@@ -22,6 +19,9 @@ class Debate : Scene() {
 	val DEFOCUS_ALPHA = 0.3f
 	val PROCTOR_ACTIVE_Y = 480f-256 //stage.height*5/8
 	val PROCTOR_DEFOCUS_Y = -300f
+	val PLAYER_FEEDBACK_LABEL_START = Pair(-50f, 480f-150f)
+	val PLAYER_FEEDBACK_LABEL_END = Pair(100f, PLAYER_FEEDBACK_LABEL_START.second) // Only X motion.
+	val FEEDBACK_DROP_SHADOW_DISTANCE = 2f
 
 	val stage = Stage(FitViewport(640f, 480f))
 	val skin = Skin(Gdx.files.internal("default_skin.json"))
@@ -39,8 +39,6 @@ class Debate : Scene() {
 	val timer = ProgressBar(0f, 1f, 0.01f, false, skin)
 	var currentCharacter = 0 // used when gradually showing the text.
 	var timeToNextCharacter = 0f
-	val playerFeedbackLabelStart = Pair(-50f, 480f-150f)
-	val playerFeedbackLabelEnd = Pair(100f, playerFeedbackLabelStart.second) // Only X motion.
 
 	// Gameplay elements.
 	var playerSkipKey = false // Player has requested a skip.
@@ -193,27 +191,38 @@ class Debate : Scene() {
 			return // Bail early if there's no difference.
 		}
 
-		// TODO: Add font name and color.
+		// TODO: This is full of gross style hacks involving cloning the style sheets.
 		val label = Label(deltaText, skin)
+		label.style = Label.LabelStyle(label.style) // Clone style.
+		val labelBackdrop = Label(deltaText, skin) // HACK: For text outline/backdrop.  TODO: Text outline?
+		labelBackdrop.style = Label.LabelStyle(label.style)
 		label.style.fontColor = popupColor
-		label.setPosition(playerFeedbackLabelStart.first, playerFeedbackLabelStart.second)
+		labelBackdrop.style.fontColor = Color(0f, 0f, 0f, 1f)
+		// This throws off alignment, so change font size instead.
+		//labelBackdrop.setFontScale(labelBackdrop.fontScaleX*1.1f, labelBackdrop.fontScaleY*1.1f)
+		//labelBackdrop.scaleX = label.scaleX*1.1f
+		label.setPosition(PLAYER_FEEDBACK_LABEL_START.first, PLAYER_FEEDBACK_LABEL_START.second)
+		labelBackdrop.setPosition(PLAYER_FEEDBACK_LABEL_START.first, PLAYER_FEEDBACK_LABEL_START.second)
+		stage.addActor(labelBackdrop)
 		stage.addActor(label)
 		TweenManager.add(SequentialTween(
 			// Slide in.
 			EaseTween(1f, 0f, 1f, 0.5f, { t ->
-				label.setPosition(
-					playerFeedbackLabelEnd.first*t + playerFeedbackLabelStart.first*(1f-t),
-					playerFeedbackLabelEnd.second*t + playerFeedbackLabelStart.second*(1f-t)
-				)
+				val x = PLAYER_FEEDBACK_LABEL_END.first*t + PLAYER_FEEDBACK_LABEL_START.first*(1f-t)
+				val y = PLAYER_FEEDBACK_LABEL_END.second*t + PLAYER_FEEDBACK_LABEL_START.second*(1f-t)
+				labelBackdrop.setPosition(x+FEEDBACK_DROP_SHADOW_DISTANCE, y-FEEDBACK_DROP_SHADOW_DISTANCE)
+				label.setPosition(x,y)
 			}),
 			// Fade out.
-			EaseTween(1f, 1f, 0f, 0.5f, { t ->
+			BasicTween(1f, 1f, 0f, { t ->
 				val col = label.color
-				label.setColor(col.r, col.g, col.b, t)
+				label.setColor(col.r, col.g, col.b, t*t) // Square fade for the text.
+				labelBackdrop.setColor(col.r, col.g, col.b, t) // Linear fade for the backdrop
 			}),
 			// Remove from stage.
 			DelayTween(1f, {
 				label.remove()
+				labelBackdrop.remove()
 			})
 		))
 		// TODO: Play sound.
