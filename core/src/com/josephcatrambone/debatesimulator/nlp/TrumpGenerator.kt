@@ -6,11 +6,6 @@ import java.util.*
 
 class TrumpGenerator() {
 	val cfg = ContextFreeGrammar(Gdx.files.internal("trump.csv").read())
-	val topicToStartToken = mapOf(
-		Topic.ABORTION to "#ABORTION",
-		Topic.BUDGET_AND_ECONOMY to "#BUDGET#",
-		Topic.JOBS to "#JOBS#"
-	)
 
 	init {
 		// Trump generator CSV format:
@@ -20,7 +15,7 @@ class TrumpGenerator() {
 	fun generateReply(topic:Topic): String {
 		var resp = ""
 		do {
-			resp = cfg.generateString(topicToStartToken.getOrDefault(topic, "#S#"))
+			resp = cfg.generateString("#$topic#")
 		} while(resp.length < 1)
 		return resp
 	}

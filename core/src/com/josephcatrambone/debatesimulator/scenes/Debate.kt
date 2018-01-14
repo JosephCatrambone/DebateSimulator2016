@@ -63,6 +63,8 @@ class Debate : Scene() {
 		backdrop.setPosition(0f, stage.height/2f, Align.bottomLeft)
 		stage.addActor(backdrop)
 
+		//val scrollpane = ScrollPane(text, skin)
+
 		// Table layout:
 		// player | bars | trump
 		// huge text area
@@ -71,20 +73,39 @@ class Debate : Scene() {
 		table.add()
 		table.add(trump)
 		table.row()
-		table.add(text).colspan(3).expand().fill()
+		table.add(text).colspan(3).expand().fill() // TODO: Scroll pane with autoscroll.
 		table.row()
 		table.add(timer).colspan(3).expandX().fillX()
 
+		//text.setPrefRows(4f)
+
 		table.setFillParent(true)
 		stage.addActor(table)
-
-		// Load proctor questions.
-		loadPrompts()
+		table.layout()
+		text.layout()
 
 		// Fire first question.
 		proctor.setPosition(stage.width/2, PROCTOR_DEFOCUS_Y, Align.center)
 		proctor.setAlign(Align.center)
 		stage.addActor(proctor)
+		stage.setKeyboardFocus(text)
+
+		startDebate("questions_night_1.csv")
+	}
+
+	fun startDebate(questionFile:String) {
+		// Initialize player variables.
+		prompts.clear()
+		proctorQuestions.clear()
+		playerResponses.clear()
+		trumpResponses.clear()
+
+		// Load questions for this set.
+		val reader = CSVReader(Gdx.files.internal(questionFile).reader())
+		val entries = reader.readAll()
+		entries.forEach({ topic_question ->
+			prompts.add(Pair(Topic.valueOf(topic_question[0]), topic_question[1]))
+		})
 
 		// Initial prompt.
 		val prompt = prompts.removeAt(0)
@@ -93,12 +114,9 @@ class Debate : Scene() {
 		makeProctorActive()
 	}
 
-	fun loadPrompts() {
-		val reader = CSVReader(Gdx.files.internal("questions.csv").reader())
-		val entries = reader.readAll()
-		entries.forEach({ topic_question ->
-			prompts.add(Pair(Topic.valueOf(topic_question[0]), topic_question[1]))
-		})
+	fun endDebateSession() {
+		GDXMain.ACTIVE_SCENE = GDXMain.BRIEFING_SCENE
+		GDXMain.BRIEFING_SCENE.refocused()
 	}
 
 	// START: These are all ui methods.  Don't use them for control logic.
@@ -143,6 +161,9 @@ class Debate : Scene() {
 		Gdx.input.inputProcessor = stage
 		stage.act(delta)
 
+		// TODO: This state code is a mess.  Needs to be cleaned up.
+		// Proctor -> Player -> Trump
+		//
 		if(trumpResponding) {
 			timer.value = timer.value - delta // TODO: Is this meaningful here?
 			val s = trumpResponses.last()
@@ -150,7 +171,7 @@ class Debate : Scene() {
 			if(done) {
 				timer.value = RESPONSE_TIME
 				// Trump has finished his thing.  Select a new prompt at random.
-				val prompt = prompts.removeAt(0)
+				val prompt = prompts.removeAt(0) // The last entry in the questions will be the end of the night.
 				lastPromptTopic = prompt.first
 				proctorQuestions.add(prompt.second)
 				makeProctorActive()
@@ -176,6 +197,11 @@ class Debate : Scene() {
 			val s = proctorQuestions.last()
 			val done = updateTextDisplay(delta, s)
 			if(done) {
+				// Are we out of questions?
+				if(prompts.isEmpty()) {
+					endDebateSession()
+					return // Break early.
+				}
 				// Refil the timer.
 				timer.value = RESPONSE_TIME
 				makePlayerActive()
@@ -189,10 +215,10 @@ class Debate : Scene() {
 		var popupColor = Color(0.1f, 0.1f, 0.1f, 1f)
 
 		if(change > 0) {
-			deltaText += "+$change"
+			deltaText += "+%.2f".format(change)
 			popupColor = Color(0.1f, 1.0f, 0.1f, 1.0f)
 		} else if(change < 0) {
-			deltaText += "$change"
+			deltaText += "%.2f".format(change)
 			popupColor = Color(1.0f, 0.1f, 0.1f, 1.0f)
 		} else {
 			println("DEBUG: Statement did not change demographics.  What the fuck?")

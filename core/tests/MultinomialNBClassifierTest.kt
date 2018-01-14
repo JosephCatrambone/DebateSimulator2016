@@ -55,6 +55,164 @@ class MultinomialNBClassifierTest {
 	}
 
 	@Test
+	fun buildLiterallyDogsDemographic() {
+		val dislikeStatements = arrayOf(
+			"Bath",
+			"Vet"
+		)
+
+		val likeStatements = arrayOf(
+			"Food",
+			"Walk",
+			"Good boy",
+			"Good boys",
+			"Dinner",
+			"Ball",
+			"Fetch",
+			"Park"
+		)
+
+		val examples = dislikeStatements.plus(likeStatements)
+		val labels = IntArray(examples.size, { i -> if(i < dislikeStatements.size) { 0 } else { 1 }})
+
+		val tokenizer = Tokenizer(examples)
+		val sentiment = MultinomialNBClassifier(tokenizer.numTokens, 2)
+		sentiment.fit(tokenizer.run(examples), labels)
+
+		val dem = Demographic(
+				5000,
+				0.5f,
+				tokenizer,
+				sentiment,
+				"Dogs",
+				"The literally dogs demographic is literally dogs.  They'll probably love you unconditionally.  Dogs are so good."
+		)
+
+		saveDemographic(dem, "dogs.demographic")
+	}
+
+	@Test
+	fun buildAntiVaxxerDemographic() {
+		val dislikeStatements = arrayOf(
+			"scientific consensus",
+			"evidence based medicine",
+			"preventable diseases",
+			"vaccination",
+			"social obligation"
+		)
+
+		val likeStatements = arrayOf(
+			"Vaccines are unsafe.",
+			"They're not proven safe.",
+			"Vaccines will give my child autism.",
+			"It's my right as a parent to choose what's best for my child.",
+			"I know what's best for my kids."
+		)
+
+		val examples = dislikeStatements.plus(likeStatements)
+		val labels = IntArray(examples.size, { i -> if(i < dislikeStatements.size) { 0 } else { 1 }})
+
+		val tokenizer = Tokenizer(examples)
+		val sentiment = MultinomialNBClassifier(tokenizer.numTokens, 2)
+		sentiment.fit(tokenizer.run(examples), labels)
+
+		val dem = Demographic(
+			1000,
+			0.5f,
+			tokenizer,
+			sentiment,
+			"Anti-vaxxers",
+			"Anti-vaxxers are people who believe it's their right as parents to decide what exterminated diseases come roaring back into the population."
+		)
+
+		saveDemographic(dem, "antivax.demographic")
+	}
+
+	@Test
+	fun buildHipsterDemographic() {
+		val dislikeStatements = arrayOf(
+			"Starbucks",
+			"Peet's Coffee",
+			"Fucking Hipsters",
+			"Bullshit plaid",
+			"Clean shaven good looks.",
+			"Well groomed and well bathed"
+		)
+
+		val likeStatements = arrayOf(
+			"Small batch",
+			"Artisanal coffee",
+			"Kale salad",
+			"You've probably never heard of it.",
+			"Artisan Coffee",
+			"Vinal",
+			"Vinyl",
+			"Record collection",
+			"Acoustic",
+			"Microbatch",
+			"Microbrewery"
+		)
+
+		val examples = dislikeStatements.plus(likeStatements)
+		val labels = IntArray(examples.size, { i -> if(i < dislikeStatements.size) { 0 } else { 1 }})
+
+		val tokenizer = Tokenizer(examples)
+		val sentiment = MultinomialNBClassifier(tokenizer.numTokens, 2)
+		sentiment.fit(tokenizer.run(examples), labels)
+
+		val dem = Demographic(
+				10000,
+				0.2f,
+				tokenizer,
+				sentiment,
+				"Hipsters",
+				"Not quite hippies, but fond of wool and beards and weird coffee and shit you haven't heard of."
+		)
+
+		saveDemographic(dem, "hipsters.demographic")
+	}
+
+	@Test
+	fun buildWeirdPortlandDemographic() {
+		val dislikeStatements = arrayOf(
+				"Make it so.",
+				"Engage",
+				"Star Trek",
+				"Beam me up.",
+				"Energize.",
+				"You're a wizard, Harry.",
+				"Scared, Potter?"
+		)
+
+		val likeStatements = arrayOf(
+				"Star Wars",
+				"Star Wars is the best film series.",
+				"Use the force, Luke",
+				"Punch it, Chewie.",
+				"Keep Portland weird.",
+				"Artisan Coffee"
+		)
+
+		val examples = dislikeStatements.plus(likeStatements)
+		val labels = IntArray(examples.size, { i -> if(i < dislikeStatements.size) { 0 } else { 1 }})
+
+		val tokenizer = Tokenizer(examples)
+		val sentiment = MultinomialNBClassifier(tokenizer.numTokens, 2)
+		sentiment.fit(tokenizer.run(examples), labels)
+
+		val dem = Demographic(
+				10000,
+				0.2f,
+				tokenizer,
+				sentiment,
+				"VaderHeads",
+				"People who wear darth vader helmets during sex.  It's weird, but they vote.  Just don't talk about Star Trek."
+		)
+
+		saveDemographic(dem, "vaderheads.demographic")
+	}
+
+	@Test
 	fun buildGunNutsDemographic() {
 		val dislikeStatements = arrayOf(
 				"Guns are stupid.",

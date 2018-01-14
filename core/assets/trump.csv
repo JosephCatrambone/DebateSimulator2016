@@ -1,13 +1,14 @@
-S,My predecessor had no idea what he was doing.  No idea. #S#
-S,I'm going to make America great again.
+S,My predecessor had no idea what he was doing.  No idea. It's terrible. I'm going to make America great again.  You should vote for me.
+BUDGET_AND_ECONOMY,Our economy is crashing.  We're losing jobs faster than ever.  #JOBS#
 JOBS,I know all about jobs. #JOBS#
 JOBS,I'm a business man.  It's what I do. #JOBS#
 JOBS,"People are always telling me, ""I'm the best."" They say, ""Donald, you know your stuff."" #SMART#"
+JOBS,People are always giving my compliments.  #SMART#
 JOBS,The deals just come out of my ears.
-SMART,Very smart.
+SMART,I'm really a smart person.  #SMART#
 SMART,I'm a smart person. #SMART#
 SMART,My IQ is really one of the highest.
-SMART,I have an uncle.  He's a professor at #COLLEGE#.  Smart guy.  He always told me #UNCLESTORY#
+SMART,"I have an uncle.  He's a professor at #COLLEGE#.  Smart guy.  He always told me ""#UNCLESTORY#"""
 COLLEGE,MIT
 COLLEGE,Harvard
 COLLEGE,Yale
@@ -24,12 +25,12 @@ OC,They're killing us. #OC# #OPPONENT#
 OC,I'm going to bring jobs back.
 JOBS,I'm going to reduce regulation. #JOBS#
 JOBS,I'm going to cut red tape. #JOBS#
-JOBS,I'm going to grow the economy. #JOBS#
+JOBS,I'm going to grow the economy. #JOBS# #BUDGET#
 JOBS,You're gonna' love it. #OPPONENT#
 OPPONENT,"And my opponent -- career politician.  Part of the whole fake news, swampy mess. #MEDIA"
 OPPONENT,"My opponent, very establishment, no business experience."
 MEDIA,The media.  They hate me.
-MEDIA,The whole CNN
+MEDIA,The whole CNN and the fake news.  They don't like me.
 COUNTRY,China
 COUNTRY,India
 COUNTRY,Mexico #COUNTRY2
@@ -44,3 +45,35 @@ POSITIVE,unbelievable
 BIGNUM,10 million
 BIGNUM,100 million
 BIGNUM,1 billion
+BUDGET,Our government is so bureaucratic.  #BUDGET#
+BUDGET,We have so much bureaucracy. 
+BUDGET,I will balance the budget. #BUDGET#
+BUDGET,If you vote for me I will elimate the deficit.  Just like that.  Eliminate.  #JOBS#
+NEGOTIATOR,I'm a fantastic negotiator.  #NEGOTIATOR#
+NEGOTIATOR,"Really, if I'm being honest, I'm a fantastic negotiator.  #BUSINESS#"
+HEALTHCARE,"I'm going to unleash the American healthcare system.  It's going to be #POSITIVE#, just you wait and see."
+HEALTHCARE,Obamacare is a complete failure.  Just terrible.  Huge failure. #HEALTHCARE#
+HEALTHCARE,Everyone is getting taken care of. #HEALTHCARE#
+HEALTHCARE,"Under my plan, everyone will get to keep their doctors, they'll pay less, and costs will go down."
+CRIME,"I'm going to be so tough on crime.  I'm a tough guy, and #CRIME#"
+CRIME,"our police and government right now, they're not tough.  They're catching these criminals and letting them go.  #IMMIGRANTCRIME#"
+IMMIGRANTCRIME,"And a huge number of these crimes, a huge number, I think it was #BIGNUM# per year, are committed by illegals.  #IMMIGRATION#"
+CRIME,"These criminals, they're looking at us like we won't do anything.  #CRIME#"
+CRIME,"Criminals look at liberals and think, ""Okay, so we can do crime and they'll just give us a slap on the wrist.""  Not me.  #CRIME#"
+CRIME,I will be tougher and stronger on crime and immigration than anyone before me.
+CRIME,"Just you watch.  Under me, crime is going to go down."
+FAMILIES_AND_CHILDREN,I love my kids.  All of them.  I think marriage is between a man and a woman. #FAMILIES_AND_CHILDREN#
+FAMILIES_AND_CHILDREN,But I'm opposed to gay marriage. #FAMILIES_AND_CHILDREN#
+FAMILIES_AND_CHILDREN,I'm against gay marriage. #FAMILIES_AND_CHILDREN#
+FAMILIES_AND_CHILDREN,I get a lot of heat for being against gay marriage because I'm from New York. #FAMILIES_AND_CHILDREN#
+FAMILIES_AND_CHILDREN,"I'm from New York and everyone there is like, ""You gotta' support gay marriage."" #FAMILIES_AND_CHILDREN#"
+FAMILIES_AND_CHILDREN,I just don't like gay marriage.  I don't feel good about it. #FAMILIES_AND_CHILDREN#
+FAMILIES_AND_CHILDREN,
+GUN_CONTROL,The guns don't pull the trigger. It's the people that pull the trigger. It's really criminals that are doing all this.  You need legislation. #GC2# 
+GC2,If you have better legislation then you don't see this happen.  You need to be hard on criminals that do this.  #CRIME#
+GC2,"I am a 2nd amendment person. If we had guns in California on the other side where the bullets went in the different direction, you wouldn't have 14 or 15 people dead right now. #GC3#"
+GC3,"If even in Paris, if they had guns on the other side, going in the opposite direction, you wouldn't have 130 people plus dead.  I don't know the numbers.  It was #POSITIVE#.  I think there were #BIGNUM# dead, last count?  Terrible. #CRIME#"
+TECHNOLOGY,"I'm big on technology.  I support businesses that invest in technology.  I know this stuff.  I choose to do business, but I understand it.  #SMART# "
+TECHNOLOGY,"I love technology.  Love it.  The media thinks I don't.  #MEDIA#  I invest in technology because I understand it.  As President, I will invest in technology and make jobs.  #JOBS#"
+ABORTION,"I am pro-life, and I will be appointing pro-life judges, I would think that that will go back to the individual states. If we put another two or perhaps three justice on, that's really what's going to be."
+ABORTION,"I'm pro-life and I will appoint pro-life judges.  It should go to the states.  States should do it. That'll happen automatically, in my opinion, because I am putting pro-life justices on the court. I will say this: It will go back to the states, and the states will then make a determination."

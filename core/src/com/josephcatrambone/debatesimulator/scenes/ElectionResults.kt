@@ -8,7 +8,11 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Image
+import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.scenes.scene2d.ui.TextArea
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
+import com.badlogic.gdx.utils.viewport.FitViewport
 import com.josephcatrambone.debatesimulator.Demographic
 import com.josephcatrambone.debatesimulator.GDXMain
 import com.josephcatrambone.debatesimulator.UnitedState
@@ -21,22 +25,72 @@ class ElectionResults : Scene() {
 	var debugTemp = 0
 
 	// Demographics
+	val antivaxers:Demographic
+	val dogs:Demographic
+	val hipsters:Demographic
 	val gunNuts:Demographic
+	val vaderheads:Demographic
 
 	// List of all of them for iteration and scoring.
 	val demographics:List<Demographic>
+	val demographicAllocationByState:Map<Demographic,Map<UnitedState,Float>>
+
+	// Vote outcomes.
+	var popularVotes = 0
+	var electoralVotes = 0
+	val stateOutcomeInPlayerFavor = mutableMapOf<UnitedState,Boolean>()
 
 	// Our whole map.
 	var stateMap:Texture? = null
-	val stateMapImage = Image()
-	val stage = Stage()
+	val stateMapImage = Image(GDXMain.TEXTURE_ATLAS.findRegion("map"))
+	val electionResultColors = mutableMapOf<UnitedState,Color>()
+
+	// Screen layout.
+	val stage = Stage(FitViewport(640f, 480f))
+	val skin = Skin(Gdx.files.internal("default_skin.json"))
+	val textArea = TextArea("", skin)
+	val table = Table()
 
 	init {
+		antivaxers = loadDemographic("antivax.demographic")
+		dogs = loadDemographic("dogs.demographic")
 		gunNuts = loadDemographic("gunnuts.demographic")
+		hipsters = loadDemographic("hipsters.demographic")
+		vaderheads = loadDemographic("vaderheads.demographic")
 
-		demographics = listOf(gunNuts)
+		demographics = listOf(
+			antivaxers,
+			dogs,
+			gunNuts,
+			hipsters,
+			vaderheads
+		)
 
-		stage.addActor(stateMapImage)
+		demographicAllocationByState = mapOf(
+			gunNuts to mapOf(
+				UnitedState.ALABAMA to 0.1f,
+				UnitedState.ARIZONA to 0.1f,
+				UnitedState.IDAHO to 0.1f,
+				UnitedState.ARKANSAS to 0.1f,
+				UnitedState.UTAH to 0.1f,
+				UnitedState.MONTANA to 0.1f,
+				UnitedState.TEXAS to 0.5f,
+				UnitedState.OKLAHOMA to 0.1f,
+				UnitedState.KANSAS to 0.1f,
+				UnitedState.LOUISIANA to 0.1f,
+				UnitedState.MISSOURI to 0.1f,
+				UnitedState.MISSISSIPPI to 0.1f,
+				UnitedState.NEBRASKA to 0.1f
+			)
+		)
+
+		table.add(stateMapImage).fill()
+		table.row()
+		table.add(textArea).fillX().expandX().padLeft(20f).padRight(20f)
+		table.row()
+		table.setFillParent(true)
+		table.layout()
+		stage.addActor(table)
 	}
 
 	fun loadDemographic(name:String):Demographic {
@@ -97,6 +151,7 @@ class ElectionResults : Scene() {
 
 		demographics.forEach({ dem ->
 			val delta = dem.updateSentiment(listOf(statement))
+			print("DEBUG: ${dem.demographicName} : $delta")
 			if(abs(delta) > abs(maxChange)) {
 				maxChange = delta
 				maxDemographic = dem.demographicName
@@ -119,21 +174,16 @@ class ElectionResults : Scene() {
 
 		debugTemp++
 		if(debugTemp%100 == 0) {
-
-			// Clear the state map if it's set.
-			if(stateMap != null) { stateMap!!.dispose() }
 			// Make a random map.
 			val electionResults = mutableMapOf<UnitedState,Color>()
-			UnitedState.values().forEach { s ->
-				// Randomly assign red/blue.
-				electionResults[s] = when (random.nextInt(2)) {
-					0 -> Color.BLUE
-					1 -> Color.RED
-					else -> {
-						throw Exception("Election Results: This can't happen.  3 > 2")
-					}
+			electionResults[UnitedState.values()[(debugTemp/100)%50]] = when (random.nextInt(2)) {
+				0 -> Color.BLUE
+				1 -> Color.RED
+				else -> {
+					throw Exception("Election Results: This can't happen.  3 > 2")
 				}
 			}
+			stateMap?.dispose()
 			stateMap = colorMap(electionResults)
 			stateMapImage.drawable = TextureRegionDrawable(TextureRegion(stateMap))
 			stateMapImage.width = stateMap!!.width.toFloat()
@@ -142,6 +192,7 @@ class ElectionResults : Scene() {
 	}
 
 	override fun dispose() {
-		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+		stateMap?.dispose()
+		skin.dispose()
 	}
 }

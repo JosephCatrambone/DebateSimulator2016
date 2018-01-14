@@ -47,8 +47,8 @@ public class GDXMain extends ApplicationAdapter {
 		ELECTON_SCENE = new ElectionResults();
 
 		// Start with the intro.
-		//ACTIVE_SCENE = INTRO_SCENE;
-		ACTIVE_SCENE = ELECTON_SCENE;
+		ACTIVE_SCENE = INTRO_SCENE;
+		//ACTIVE_SCENE = ELECTON_SCENE;
 	}
 
 	@Override
