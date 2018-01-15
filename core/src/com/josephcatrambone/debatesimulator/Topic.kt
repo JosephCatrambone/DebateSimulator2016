@@ -1,7 +1,7 @@
 package com.josephcatrambone.debatesimulator
 
 enum class Topic {
-	NO_TOPIC, // Intro or greeting.
+	NO_TOPIC,
 	ABORTION,
 	BUDGET_AND_ECONOMY,
 	CIVIL_RIGHTS,

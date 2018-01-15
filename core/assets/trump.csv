@@ -45,10 +45,10 @@ POSITIVE,unbelievable
 BIGNUM,10 million
 BIGNUM,100 million
 BIGNUM,1 billion
-BUDGET,Our government is so bureaucratic.  #BUDGET#
-BUDGET,We have so much bureaucracy. 
-BUDGET,I will balance the budget. #BUDGET#
-BUDGET,If you vote for me I will elimate the deficit.  Just like that.  Eliminate.  #JOBS#
+BUDGET_AND_ECONOMY,Our government is so bureaucratic.  #BUDGET_AND_ECONOMY#
+BUDGET_AND_ECONOMY,We have so much bureaucracy. 
+BUDGET_AND_ECONOMY,I will balance the budget. #BUDGET_AND_ECONOMY#
+BUDGET_AND_ECONOMY,If you vote for me I will elimate the deficit.  Just like that.  Eliminate.  #JOBS#
 NEGOTIATOR,I'm a fantastic negotiator.  #NEGOTIATOR#
 NEGOTIATOR,"Really, if I'm being honest, I'm a fantastic negotiator.  #BUSINESS#"
 HEALTHCARE,"I'm going to unleash the American healthcare system.  It's going to be #POSITIVE#, just you wait and see."
@@ -71,9 +71,9 @@ FAMILIES_AND_CHILDREN,I just don't like gay marriage.  I don't feel good about i
 FAMILIES_AND_CHILDREN,
 GUN_CONTROL,The guns don't pull the trigger. It's the people that pull the trigger. It's really criminals that are doing all this.  You need legislation. #GC2# 
 GC2,If you have better legislation then you don't see this happen.  You need to be hard on criminals that do this.  #CRIME#
-GC2,"I am a 2nd amendment person. If we had guns in California on the other side where the bullets went in the different direction, you wouldn't have 14 or 15 people dead right now. #GC3#"
-GC3,"If even in Paris, if they had guns on the other side, going in the opposite direction, you wouldn't have 130 people plus dead.  I don't know the numbers.  It was #POSITIVE#.  I think there were #BIGNUM# dead, last count?  Terrible. #CRIME#"
-TECHNOLOGY,"I'm big on technology.  I support businesses that invest in technology.  I know this stuff.  I choose to do business, but I understand it.  #SMART# "
-TECHNOLOGY,"I love technology.  Love it.  The media thinks I don't.  #MEDIA#  I invest in technology because I understand it.  As President, I will invest in technology and make jobs.  #JOBS#"
+GC2,I am a 2nd amendment person. #GC3#
+GC3,"If they had guns on the other side, you wouldn't have 130 people plus dead.  I don't know the numbers.  It was #POSITIVE#.  I think there were #BIGNUM# dead, last count?  Terrible. #CRIME#"
+INFRASTRUCTURE_AND_TECHNOLOGY,"I'm big on technology.  I support businesses that invest in technology.  I know this stuff.  I choose to do business, but I understand it.  #SMART# "
+INFRASTRUCTURE_AND_TECHNOLOGY,"I love technology.  Love it.  The media thinks I don't.  #MEDIA#  I invest in technology because I understand it.  As President, I will invest in technology and make jobs.  #JOBS#"
 ABORTION,"I am pro-life, and I will be appointing pro-life judges, I would think that that will go back to the individual states. If we put another two or perhaps three justice on, that's really what's going to be."
 ABORTION,"I'm pro-life and I will appoint pro-life judges.  It should go to the states.  States should do it. That'll happen automatically, in my opinion, because I am putting pro-life justices on the court. I will say this: It will go back to the states, and the states will then make a determination."

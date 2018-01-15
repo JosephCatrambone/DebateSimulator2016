@@ -94,11 +94,11 @@ class MultinomialNBClassifierTest {
 	@Test
 	fun buildAntiVaxxerDemographic() {
 		val dislikeStatements = arrayOf(
-			"scientific consensus",
-			"evidence based medicine",
-			"preventable diseases",
-			"vaccination",
-			"social obligation"
+			"We need to trust and understand the scientific consensus.",
+			"We must follow the guidance of evidence based medicine.",
+			"It is abhorrent that we should subject our children to preventable diseases.",
+			"I believe in the importance of vaccination.",
+			"Each of us has a social obligation to support herd immunity."
 		)
 
 		val likeStatements = arrayOf(

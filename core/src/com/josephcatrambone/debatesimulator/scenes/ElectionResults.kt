@@ -1,6 +1,7 @@
 package com.josephcatrambone.debatesimulator.scenes
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.Pixmap
@@ -21,6 +22,9 @@ import java.util.*
 import kotlin.math.abs
 
 class ElectionResults : Scene() {
+	val CHARACTER_DEBOUNCE = 10 // There must be at least this many character printed by the prompt before advancing.
+	val TEXT_SPEED_DIVISOR = 100f // We read PREFERENCES.getInteger("TEXT_SPEED") and divide by this for the chardelay.
+
 	val random = Random()
 	var debugTemp = 0
 
@@ -48,8 +52,12 @@ class ElectionResults : Scene() {
 	// Screen layout.
 	val stage = Stage(FitViewport(640f, 480f))
 	val skin = Skin(Gdx.files.internal("default_skin.json"))
-	val textArea = TextArea("", skin)
 	val table = Table()
+
+	val textArea = TextArea("", skin)
+	var timeToNextCharacter = 0f
+	var playerSkipKey = false
+	var currentCharacter = 0
 
 	init {
 		antivaxers = loadDemographic("antivax.demographic")
@@ -151,7 +159,7 @@ class ElectionResults : Scene() {
 
 		demographics.forEach({ dem ->
 			val delta = dem.updateSentiment(listOf(statement))
-			print("DEBUG: ${dem.demographicName} : $delta")
+			println("DEBUG: ${dem.demographicName} : $delta")
 			if(abs(delta) > abs(maxChange)) {
 				maxChange = delta
 				maxDemographic = dem.demographicName
@@ -170,6 +178,7 @@ class ElectionResults : Scene() {
 	}
 
 	override fun update(delta: Float) {
+		Gdx.input.inputProcessor = stage
 		stage.act()
 
 		debugTemp++
@@ -194,5 +203,32 @@ class ElectionResults : Scene() {
 	override fun dispose() {
 		stateMap?.dispose()
 		skin.dispose()
+	}
+
+	// Copied and pasted from debate because I'm a lazy shit:
+	fun updateTextDisplay(delta:Float, s:String): Boolean {
+		// Update the time.
+		timeToNextCharacter -= delta
+		if(timeToNextCharacter <= 0f || playerSkipKey) {
+			currentCharacter++
+
+			textArea.text = s.substring(0, minOf(s.length, currentCharacter))
+			timeToNextCharacter = GDXMain.PREFERENCES.getInteger("TEXT_SPEED")/TEXT_SPEED_DIVISOR
+		}
+
+		// Pick a prompt at random.
+		//if(currentCharacter > proctorQuestions.last().length)
+		// If the key is down, speed through the rest of the characters.  If released, go to next.
+		if(Gdx.input.isKeyPressed(Input.Keys.ANY_KEY) && currentCharacter > CHARACTER_DEBOUNCE) {
+			playerSkipKey = true
+			timeToNextCharacter = 0f
+		} else if(!Gdx.input.isKeyPressed(Input.Keys.ANY_KEY) && playerSkipKey) {
+			// Finish the text display process.
+			playerSkipKey = false
+			currentCharacter = 0
+			return true
+		}
+
+		return false
 	}
 }

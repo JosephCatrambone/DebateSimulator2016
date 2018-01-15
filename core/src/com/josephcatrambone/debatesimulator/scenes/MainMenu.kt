@@ -25,6 +25,9 @@ class MainMenu : Scene() {
 	val creditsButton = TextButton("Credits", skin)
 	val quitButton = TextButton("Quit", skin)
 
+	val optionsTable = Table()
+
+
 	init {
 		mainMenuTable.add(newGameButton)
 		mainMenuTable.row()
@@ -76,13 +79,13 @@ class MainMenu : Scene() {
 
 		optionsButton.addListener(object : ChangeListener(){
 			override fun changed(event: ChangeEvent?, actor: Actor?) {
-				TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+				showOptions()
 			}
 		})
 
 		creditsButton.addListener(object : ChangeListener(){
 			override fun changed(event: ChangeEvent?, actor: Actor?) {
-				TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+				showCredits()
 			}
 		})
 
@@ -98,8 +101,16 @@ class MainMenu : Scene() {
 		// Change the 'new game' button to 'Continue'.
 		newGameButton.setText("Continue")
 		// TODO: Fade out.
-		println("DEBUG: Going straight to DEBATE scene.")
-		GDXMain.ACTIVE_SCENE = GDXMain.DEBATE_SCENE
+		GDXMain.ACTIVE_SCENE = GDXMain.BRIEFING_SCENE
+		GDXMain.BRIEFING_SCENE.refocused()
 		// We do NOT pop the main menu because they may want to come back here to adjust options.
+	}
+
+	fun showOptions() {
+
+	}
+
+	fun showCredits() {
+
 	}
 }
