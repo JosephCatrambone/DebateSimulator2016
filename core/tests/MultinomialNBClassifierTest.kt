@@ -80,7 +80,6 @@ class MultinomialNBClassifierTest {
 		sentiment.fit(tokenizer.run(examples), labels)
 
 		val dem = Demographic(
-				5000,
 				0.5f,
 				tokenizer,
 				sentiment,
@@ -117,7 +116,6 @@ class MultinomialNBClassifierTest {
 		sentiment.fit(tokenizer.run(examples), labels)
 
 		val dem = Demographic(
-			1000,
 			0.5f,
 			tokenizer,
 			sentiment,
@@ -161,7 +159,6 @@ class MultinomialNBClassifierTest {
 		sentiment.fit(tokenizer.run(examples), labels)
 
 		val dem = Demographic(
-				10000,
 				0.2f,
 				tokenizer,
 				sentiment,
@@ -170,46 +167,6 @@ class MultinomialNBClassifierTest {
 		)
 
 		saveDemographic(dem, "hipsters.demographic")
-	}
-
-	@Test
-	fun buildWeirdPortlandDemographic() {
-		val dislikeStatements = arrayOf(
-				"Make it so.",
-				"Engage",
-				"Star Trek",
-				"Beam me up.",
-				"Energize.",
-				"You're a wizard, Harry.",
-				"Scared, Potter?"
-		)
-
-		val likeStatements = arrayOf(
-				"Star Wars",
-				"Star Wars is the best film series.",
-				"Use the force, Luke",
-				"Punch it, Chewie.",
-				"Keep Portland weird.",
-				"Artisan Coffee"
-		)
-
-		val examples = dislikeStatements.plus(likeStatements)
-		val labels = IntArray(examples.size, { i -> if(i < dislikeStatements.size) { 0 } else { 1 }})
-
-		val tokenizer = Tokenizer(examples)
-		val sentiment = MultinomialNBClassifier(tokenizer.numTokens, 2)
-		sentiment.fit(tokenizer.run(examples), labels)
-
-		val dem = Demographic(
-				10000,
-				0.2f,
-				tokenizer,
-				sentiment,
-				"VaderHeads",
-				"People who wear darth vader helmets during sex.  It's weird, but they vote.  Just don't talk about Star Trek."
-		)
-
-		saveDemographic(dem, "vaderheads.demographic")
 	}
 
 	@Test
@@ -245,7 +202,6 @@ class MultinomialNBClassifierTest {
 		sentiment.fit(tokenizer.run(examples), labels)
 
 		val gunNuts = Demographic(
-			1000000,
 			0.7f,
 			tokenizer,
 			sentiment,
@@ -259,9 +215,9 @@ class MultinomialNBClassifierTest {
 	}
 
 	@Test
-	fun buildProRegulationVsAntiRegulationClassifier() {
+	fun buildLiberalDemographic() {
 		// Left = proponent of govt regulation of business.
-		val proRegulation = arrayOf(
+		val likeStatements = arrayOf(
 			"The free market alone should not and cannot act in the best interests of the people.",
 			"Regulation and government oversight are essential for the betterment of all human kind.",
 			"A free market is not a fair market.",
@@ -282,7 +238,7 @@ class MultinomialNBClassifierTest {
 			"",
 		""
 		)
-		val antiRegulation = arrayOf<String>(
+		val dislikeStatements = arrayOf<String>(
 			"The administration took this action with great regret, because it's clear that the massive deficits our government runs is one of the root causes of our profound economic problems, and for too many years this process has come too easily for us.",
 			"We've lived beyond our means and then financed our extravagance on the backs of the American people.",
 			"The clear message I received in the election campaign is that we must gain control of this inflationary monster.",
@@ -297,7 +253,25 @@ class MultinomialNBClassifierTest {
 			"This action gives my administration time to start a new regulatory oversight process and also prevents certain last-minute regulatory decisions of the previous administration, the so-called midnight regulations, from taking effect without proper review and approval.",
 			"All of us should remember that the Federal Government is not some mysterious institution comprised of buildings, files, and paper. The people are the government. What we create we ought to be able to control."
 		)
-		val classifier = MultinomialNBClassifier(indexToWord.size, 2)
+
+		val examples = dislikeStatements.plus(likeStatements)
+		val labels = IntArray(examples.size, { i -> if(i < dislikeStatements.size) { 0 } else { 1 }})
+
+		val tokenizer = Tokenizer(examples)
+		val sentiment = MultinomialNBClassifier(tokenizer.numTokens, 2)
+		sentiment.fit(tokenizer.run(examples), labels)
+
+		val liberalDemographic = Demographic(
+				0.7f,
+				tokenizer,
+				sentiment,
+				"Liberals",
+				"Favor a larger government.  They believe the purpose of government is to make a level playing field, to protect consumers, and to provide a social safety net."
+		)
+
+		val dSentiment = liberalDemographic.updateSentiment(listOf("Guns are for morons.", "Farmers love guns.", "Violence is bad."))
+
+		saveDemographic(liberalDemographic, "liberal.demographic")
 	}
 
 

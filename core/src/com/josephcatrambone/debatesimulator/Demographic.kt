@@ -5,7 +5,6 @@ import com.josephcatrambone.debatesimulator.nlp.Tokenizer
 import java.io.Serializable
 
 class Demographic(
-	val populationSize:Int,
 	val baseVotingLikelihood:Float, // The odds that a member of this group will case a vote.
 	val tokenizer: Tokenizer,
 	val likePlayerClassifier:MultinomialNBClassifier, // For the classifier, feature 0 should be dislike, 1 should be like.

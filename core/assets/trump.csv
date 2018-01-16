@@ -25,7 +25,7 @@ OC,They're killing us. #OC# #OPPONENT#
 OC,I'm going to bring jobs back.
 JOBS,I'm going to reduce regulation. #JOBS#
 JOBS,I'm going to cut red tape. #JOBS#
-JOBS,I'm going to grow the economy. #JOBS# #BUDGET#
+JOBS,I'm going to grow the economy. #JOBS# #BUDGET_AND_ECONOMY#
 JOBS,You're gonna' love it. #OPPONENT#
 OPPONENT,"And my opponent -- career politician.  Part of the whole fake news, swampy mess. #MEDIA"
 OPPONENT,"My opponent, very establishment, no business experience."
@@ -69,7 +69,7 @@ FAMILIES_AND_CHILDREN,I get a lot of heat for being against gay marriage because
 FAMILIES_AND_CHILDREN,"I'm from New York and everyone there is like, ""You gotta' support gay marriage."" #FAMILIES_AND_CHILDREN#"
 FAMILIES_AND_CHILDREN,I just don't like gay marriage.  I don't feel good about it. #FAMILIES_AND_CHILDREN#
 FAMILIES_AND_CHILDREN,
-GUN_CONTROL,The guns don't pull the trigger. It's the people that pull the trigger. It's really criminals that are doing all this.  You need legislation. #GC2# 
+GUN_CONTROL,The guns don't pull the trigger. It's the people that pull the trigger. It's really criminals that are doing all this. #GC2# 
 GC2,If you have better legislation then you don't see this happen.  You need to be hard on criminals that do this.  #CRIME#
 GC2,I am a 2nd amendment person. #GC3#
 GC3,"If they had guns on the other side, you wouldn't have 130 people plus dead.  I don't know the numbers.  It was #POSITIVE#.  I think there were #BIGNUM# dead, last count?  Terrible. #CRIME#"
@@ -77,3 +77,19 @@ INFRASTRUCTURE_AND_TECHNOLOGY,"I'm big on technology.  I support businesses that
 INFRASTRUCTURE_AND_TECHNOLOGY,"I love technology.  Love it.  The media thinks I don't.  #MEDIA#  I invest in technology because I understand it.  As President, I will invest in technology and make jobs.  #JOBS#"
 ABORTION,"I am pro-life, and I will be appointing pro-life judges, I would think that that will go back to the individual states. If we put another two or perhaps three justice on, that's really what's going to be."
 ABORTION,"I'm pro-life and I will appoint pro-life judges.  It should go to the states.  States should do it. That'll happen automatically, in my opinion, because I am putting pro-life justices on the court. I will say this: It will go back to the states, and the states will then make a determination."
+FOREIGN_POLICY,I'm a negotiator.  I'm a people person.  People love me.  I'll negotiate with these countries and we'll sit down together and we'll strike a deal.  
+ENVIRONMENT,
+BUDGET_AND_ECONOMY,
+CIVIL_RIGHTS,
+CORPORATIONS,
+EDUCATION,
+FREE_TRADE,
+GOVERNMENT_REFORM,
+HEALTHCARE,
+HOMELAND_SECURITY,
+IMMIGRATION,
+INFRASTRUCTURE_AND_TECHNOLOGY,
+SOCIAL_SECURITY,
+TAX_REFORM,I am going to give the middle class a huge tax break.  It will be #POSITIVE#.  The best.  I will close tax loopholes and bring back jobs.  #JOBS#
+WELFARE_AND_POVERTY,
+DRUGS,Drugs are bad.  I don't do drugs.  Immigrants are bringing illegal drugs over our borders into our streets every day.  #IMMIGRATION#

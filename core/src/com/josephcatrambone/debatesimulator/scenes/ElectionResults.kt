@@ -33,11 +33,11 @@ class ElectionResults : Scene() {
 	val dogs:Demographic
 	val hipsters:Demographic
 	val gunNuts:Demographic
-	val vaderheads:Demographic
+	val liberals:Demographic
 
 	// List of all of them for iteration and scoring.
 	val demographics:List<Demographic>
-	val demographicAllocationByState:Map<Demographic,Map<UnitedState,Float>>
+	val demographicAllocationByState:Map<UnitedState,Map<Demographic,Int>> // Int is the number in that state.
 
 	// Vote outcomes.
 	var popularVotes = 0
@@ -64,32 +64,69 @@ class ElectionResults : Scene() {
 		dogs = loadDemographic("dogs.demographic")
 		gunNuts = loadDemographic("gunnuts.demographic")
 		hipsters = loadDemographic("hipsters.demographic")
-		vaderheads = loadDemographic("vaderheads.demographic")
+		liberals = loadDemographic("liberal.demographic")
 
 		demographics = listOf(
 			antivaxers,
 			dogs,
 			gunNuts,
 			hipsters,
-			vaderheads
+			liberals
 		)
 
+		// We could look up each demographic by name, but we run into some initialization ordering problems.
+		// TODO: We can maybe move the demographics into each state?  Maybe?  With their populations?
 		demographicAllocationByState = mapOf(
-			gunNuts to mapOf(
-				UnitedState.ALABAMA to 0.1f,
-				UnitedState.ARIZONA to 0.1f,
-				UnitedState.IDAHO to 0.1f,
-				UnitedState.ARKANSAS to 0.1f,
-				UnitedState.UTAH to 0.1f,
-				UnitedState.MONTANA to 0.1f,
-				UnitedState.TEXAS to 0.5f,
-				UnitedState.OKLAHOMA to 0.1f,
-				UnitedState.KANSAS to 0.1f,
-				UnitedState.LOUISIANA to 0.1f,
-				UnitedState.MISSOURI to 0.1f,
-				UnitedState.MISSISSIPPI to 0.1f,
-				UnitedState.NEBRASKA to 0.1f
-			)
+			UnitedState.ARKANSAS to mapOf(gunNuts to 1),
+				UnitedState.ALASKA to mapOf(),
+				UnitedState.ARIZONA to mapOf(),
+				UnitedState.ARKANSAS to mapOf(),
+				UnitedState.CALIFORNIA to mapOf(liberals to 38332521), //38,332,521
+				UnitedState.COLORADO to mapOf(),
+				UnitedState.CONNECTICUT to mapOf(),
+				UnitedState.DELAWARE to mapOf(),
+				UnitedState.FLORIDA to mapOf(dogs to 552860, hipsters to 9000000, gunNuts to 10000000),
+				UnitedState.GEORGIA to mapOf(),
+				UnitedState.HAWAII to mapOf(),
+				UnitedState.IDAHO to mapOf(),
+				UnitedState.ILLINOIS to mapOf(liberals to 12882135),
+				UnitedState.INDIANA to mapOf(),
+				UnitedState.IOWA to mapOf(),
+				UnitedState.KANSAS to mapOf(),
+				UnitedState.KENTUCKY to mapOf(),
+				UnitedState.LOUISIANA to mapOf(),
+				UnitedState.MAINE to mapOf(),
+				UnitedState.MARYLAND to mapOf(),
+				UnitedState.MASSACHUSETTS to mapOf(),
+				UnitedState.MICHIGAN to mapOf(),
+				UnitedState.MINNESOTA to mapOf(),
+				UnitedState.MISSISSIPPI to mapOf(),
+				UnitedState.MISSOURI to mapOf(),
+				UnitedState.MONTANA to mapOf(),
+				UnitedState.NEBRASKA to mapOf(),
+				UnitedState.NEVADA to mapOf(),
+				UnitedState.NEWHAMPSHIRE to mapOf(),
+				UnitedState.NEWJERSEY to mapOf(),
+				UnitedState.NEWMEXICO to mapOf(),
+				UnitedState.NEWYORK to mapOf(liberals to 19651127),
+				UnitedState.NORTHCAROLINA to mapOf(),
+				UnitedState.NORTHDAKOTA to mapOf(),
+				UnitedState.OHIO to mapOf(),
+				UnitedState.OKLAHOMA to mapOf(),
+				UnitedState.OREGON to mapOf(),
+				UnitedState.PENNSYLVANIA to mapOf(liberals to 12773801),
+				UnitedState.RHODEISLAND to mapOf(),
+				UnitedState.SOUTHCAROLINA to mapOf(),
+				UnitedState.SOUTHDAKOTA to mapOf(),
+				UnitedState.TENNESSEE to mapOf(),
+				UnitedState.TEXAS to mapOf(gunNuts to 26448193),
+				UnitedState.UTAH to mapOf(),
+				UnitedState.VERMONT to mapOf(),
+				UnitedState.VIRGINIA to mapOf(),
+				UnitedState.WASHINGTON to mapOf(),
+				UnitedState.WESTVIRGINIA to mapOf(),
+				UnitedState.WISCONSIN to mapOf(),
+				UnitedState.WYOMING to mapOf()
 		)
 
 		table.add(stateMapImage).fill()
@@ -167,6 +204,25 @@ class ElectionResults : Scene() {
 		})
 
 		return Pair(maxDemographic, maxChange)
+	}
+
+	fun getElectionResults(): Map<UnitedState,Int> { // State -> Int, negative being lost by X amount, otherwise positive by Y votes.
+		val stddev = 0.2f
+		val results = mutableMapOf<UnitedState,Int>()
+
+		UnitedState.values().forEach { state ->
+			var votesForPlayer = 0
+			var votesForOpponent = 0
+			// Assume an even spread based on the approval from the group.
+			demographicAllocationByState[state]!!.forEach({demographic, population ->
+				votesForPlayer += (population * demographic.sentimentTowardsPlayer*(demographic.baseVotingLikelihood + random.nextFloat()*(demographic.baseVotingLikelihood*stddev))).toInt()
+				votesForOpponent += (population * (1.0f-demographic.sentimentTowardsPlayer)*(demographic.baseVotingLikelihood + random.nextFloat()*(demographic.baseVotingLikelihood*stddev))).toInt()
+			})
+			//
+			results[state] = votesForPlayer-votesForOpponent
+		}
+
+		return results
 	}
 
 	fun getApprovalRating(): Float {
