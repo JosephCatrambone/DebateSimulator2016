@@ -74,61 +74,6 @@ class ElectionResults : Scene() {
 			liberals
 		)
 
-		// We could look up each demographic by name, but we run into some initialization ordering problems.
-		// TODO: We can maybe move the demographics into each state?  Maybe?  With their populations?
-		demographicAllocationByState = mapOf(
-			UnitedState.ARKANSAS to mapOf(gunNuts to 1),
-				UnitedState.ALASKA to mapOf(),
-				UnitedState.ARIZONA to mapOf(),
-				UnitedState.ARKANSAS to mapOf(),
-				UnitedState.CALIFORNIA to mapOf(liberals to 38332521), //38,332,521
-				UnitedState.COLORADO to mapOf(),
-				UnitedState.CONNECTICUT to mapOf(),
-				UnitedState.DELAWARE to mapOf(),
-				UnitedState.FLORIDA to mapOf(dogs to 552860, hipsters to 9000000, gunNuts to 10000000),
-				UnitedState.GEORGIA to mapOf(),
-				UnitedState.HAWAII to mapOf(),
-				UnitedState.IDAHO to mapOf(),
-				UnitedState.ILLINOIS to mapOf(liberals to 12882135),
-				UnitedState.INDIANA to mapOf(),
-				UnitedState.IOWA to mapOf(),
-				UnitedState.KANSAS to mapOf(),
-				UnitedState.KENTUCKY to mapOf(),
-				UnitedState.LOUISIANA to mapOf(),
-				UnitedState.MAINE to mapOf(),
-				UnitedState.MARYLAND to mapOf(),
-				UnitedState.MASSACHUSETTS to mapOf(),
-				UnitedState.MICHIGAN to mapOf(),
-				UnitedState.MINNESOTA to mapOf(),
-				UnitedState.MISSISSIPPI to mapOf(),
-				UnitedState.MISSOURI to mapOf(),
-				UnitedState.MONTANA to mapOf(),
-				UnitedState.NEBRASKA to mapOf(),
-				UnitedState.NEVADA to mapOf(),
-				UnitedState.NEWHAMPSHIRE to mapOf(),
-				UnitedState.NEWJERSEY to mapOf(),
-				UnitedState.NEWMEXICO to mapOf(),
-				UnitedState.NEWYORK to mapOf(liberals to 19651127),
-				UnitedState.NORTHCAROLINA to mapOf(),
-				UnitedState.NORTHDAKOTA to mapOf(),
-				UnitedState.OHIO to mapOf(),
-				UnitedState.OKLAHOMA to mapOf(),
-				UnitedState.OREGON to mapOf(),
-				UnitedState.PENNSYLVANIA to mapOf(liberals to 12773801),
-				UnitedState.RHODEISLAND to mapOf(),
-				UnitedState.SOUTHCAROLINA to mapOf(),
-				UnitedState.SOUTHDAKOTA to mapOf(),
-				UnitedState.TENNESSEE to mapOf(),
-				UnitedState.TEXAS to mapOf(gunNuts to 26448193),
-				UnitedState.UTAH to mapOf(),
-				UnitedState.VERMONT to mapOf(),
-				UnitedState.VIRGINIA to mapOf(),
-				UnitedState.WASHINGTON to mapOf(),
-				UnitedState.WESTVIRGINIA to mapOf(),
-				UnitedState.WISCONSIN to mapOf(),
-				UnitedState.WYOMING to mapOf()
-		)
-
 		table.add(stateMapImage).fill()
 		table.row()
 		table.add(textArea).fillX().expandX().padLeft(20f).padRight(20f)
@@ -141,6 +86,20 @@ class ElectionResults : Scene() {
 	fun loadDemographic(name:String):Demographic {
 		val obInputStream = ObjectInputStream(Gdx.files.internal(name).read())
 		return obInputStream.readObject() as Demographic
+	}
+
+	fun loadStateInfo(name:String): Map<UnitedState,UnitedStateInfo> {
+        //val parser = CSVParser(',')
+        val reader = CSVReader(InputStreamReader(Gdx.files.internal(name).read()));
+        var parsed = reader.readNext()
+        while(parsed != null) {
+			val stateName = parsed[0]
+			val state = "TODO" // Look up.
+			val population = parsed[1].toInt()
+			val electoralVotes = parsed[2].toInt()
+            //replacements!!.add(parsed[1])
+            parsed = reader.readNext()
+        }
 	}
 
 	override fun render() {
@@ -286,5 +245,27 @@ class ElectionResults : Scene() {
 		}
 
 		return false
+	}
+
+	class UnitedStateInfo {
+		val state:UnitedState
+		val stateName:String
+		val population:Int
+		val electoralVotes:Int
+		val demographicDistribution:Map<Demographic,Float>
+
+		constructor(csvRow:Array<String>) {
+			assert(csvRow.size == 3 + demographics.size)
+			stateName = csvRow[0]
+			state = TODO("Look up the state by name")
+			population = csvRow[1].toInt()
+			electoralVotes = csvRow[2].toInt()
+
+			val demoMap = mutableMapOf<Demographic,Float>()
+			demographics.forEachIndexed({ i, demo -> 
+				demoMap[demo] = csvRow[3+i].toFloat()
+			})
+			demographicDistribution = demoMap
+		}
 	}
 }
