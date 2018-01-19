@@ -17,6 +17,8 @@ import com.badlogic.gdx.utils.viewport.FitViewport
 import com.josephcatrambone.debatesimulator.Demographic
 import com.josephcatrambone.debatesimulator.GDXMain
 import com.josephcatrambone.debatesimulator.UnitedState
+import com.opencsv.CSVReader
+import java.io.InputStreamReader
 import java.io.ObjectInputStream
 import java.util.*
 import kotlin.math.abs
@@ -30,6 +32,7 @@ class ElectionResults : Scene() {
 
 	// Demographics
 	val antivaxers:Demographic
+	val conservatives:Demographic
 	val dogs:Demographic
 	val hipsters:Demographic
 	val gunNuts:Demographic
@@ -37,7 +40,7 @@ class ElectionResults : Scene() {
 
 	// List of all of them for iteration and scoring.
 	val demographics:List<Demographic>
-	val demographicAllocationByState:Map<UnitedState,Map<Demographic,Int>> // Int is the number in that state.
+	val demographicAllocationByState:Map<UnitedState,StateDemographicInfo> // Int is the number in that state.
 
 	// Vote outcomes.
 	var popularVotes = 0
@@ -61,6 +64,7 @@ class ElectionResults : Scene() {
 
 	init {
 		antivaxers = loadDemographic("antivax.demographic")
+		conservatives = loadDemographic("conservative.demographic")
 		dogs = loadDemographic("dogs.demographic")
 		gunNuts = loadDemographic("gunnuts.demographic")
 		hipsters = loadDemographic("hipsters.demographic")
@@ -68,11 +72,14 @@ class ElectionResults : Scene() {
 
 		demographics = listOf(
 			antivaxers,
+			conservatives,
 			dogs,
 			gunNuts,
 			hipsters,
 			liberals
 		)
+
+		demographicAllocationByState = loadStateInfo("state_demographics.csv")
 
 		table.add(stateMapImage).fill()
 		table.row()
@@ -88,18 +95,18 @@ class ElectionResults : Scene() {
 		return obInputStream.readObject() as Demographic
 	}
 
-	fun loadStateInfo(name:String): Map<UnitedState,UnitedStateInfo> {
+	fun loadStateInfo(name:String): Map<UnitedState,StateDemographicInfo> {
         //val parser = CSVParser(',')
+		val res = mutableMapOf<UnitedState, StateDemographicInfo>()
         val reader = CSVReader(InputStreamReader(Gdx.files.internal(name).read()));
         var parsed = reader.readNext()
         while(parsed != null) {
-			val stateName = parsed[0]
-			val state = "TODO" // Look up.
-			val population = parsed[1].toInt()
-			val electoralVotes = parsed[2].toInt()
+			val info = StateDemographicInfo(parsed, demographics)
+			res[info.state] = info
             //replacements!!.add(parsed[1])
             parsed = reader.readNext()
         }
+		return res
 	}
 
 	override fun render() {
@@ -173,9 +180,11 @@ class ElectionResults : Scene() {
 			var votesForPlayer = 0
 			var votesForOpponent = 0
 			// Assume an even spread based on the approval from the group.
-			demographicAllocationByState[state]!!.forEach({demographic, population ->
-				votesForPlayer += (population * demographic.sentimentTowardsPlayer*(demographic.baseVotingLikelihood + random.nextFloat()*(demographic.baseVotingLikelihood*stddev))).toInt()
-				votesForOpponent += (population * (1.0f-demographic.sentimentTowardsPlayer)*(demographic.baseVotingLikelihood + random.nextFloat()*(demographic.baseVotingLikelihood*stddev))).toInt()
+			val stateInfo = demographicAllocationByState[state]!!
+			demographics.forEach({ demographic ->
+				val possibleDemographicVotes = stateInfo.population * stateInfo.demographicDistribution.getOrElse(demographic, { -> 0f })
+				votesForPlayer += (possibleDemographicVotes * demographic.sentimentTowardsPlayer*(demographic.baseVotingLikelihood + random.nextFloat()*(demographic.baseVotingLikelihood*stddev))).toInt()
+				votesForOpponent += (possibleDemographicVotes * (1.0f-demographic.sentimentTowardsPlayer)*(demographic.baseVotingLikelihood + random.nextFloat()*(demographic.baseVotingLikelihood*stddev))).toInt()
 			})
 			//
 			results[state] = votesForPlayer-votesForOpponent
@@ -247,17 +256,17 @@ class ElectionResults : Scene() {
 		return false
 	}
 
-	class UnitedStateInfo {
+	class StateDemographicInfo {
 		val state:UnitedState
 		val stateName:String
 		val population:Int
 		val electoralVotes:Int
 		val demographicDistribution:Map<Demographic,Float>
 
-		constructor(csvRow:Array<String>) {
+		constructor(csvRow:Array<String>, demographics:List<Demographic>) {
 			assert(csvRow.size == 3 + demographics.size)
 			stateName = csvRow[0]
-			state = TODO("Look up the state by name")
+			state = UnitedState.valueOf(stateName.toUpperCase().filter { chr -> chr.isLetter() })
 			population = csvRow[1].toInt()
 			electoralVotes = csvRow[2].toInt()
 

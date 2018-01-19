@@ -127,6 +127,43 @@ class MultinomialNBClassifierTest {
 	}
 
 	@Test
+	fun buildConservativeDemographic() {
+		val dislikeStatements = arrayOf(
+			"I support gay marriage.",
+			"I support same sex marriage.",
+			"Homosexuality is not a choice.",
+			"From each according to his ability, to each according to his need.",
+			"It is possible to be good without god.",
+			"We must emphasize the importance of the separation of church and state.",
+			"Corporations should not prey on the poor."
+		)
+
+		val likeStatements = arrayOf(
+			"Poor people are lazy.",
+			"I believe in God.",
+			"Guns, Jesus, and America.",
+			"Foreigners and Mexicans are taking our jobs."
+		)
+
+		val examples = dislikeStatements.plus(likeStatements)
+		val labels = IntArray(examples.size, { i -> if(i < dislikeStatements.size) { 0 } else { 1 }})
+
+		val tokenizer = Tokenizer(examples)
+		val sentiment = MultinomialNBClassifier(tokenizer.numTokens, 2)
+		sentiment.fit(tokenizer.run(examples), labels)
+
+		val dem = Demographic(
+				0.5f,
+				tokenizer,
+				sentiment,
+				"Conservatives",
+				"Conservatives believe in traditional values and favor individual liberties over collective abilities."
+		)
+
+		saveDemographic(dem, "conservative.demographic")
+	}
+
+	@Test
 	fun buildHipsterDemographic() {
 		val dislikeStatements = arrayOf(
 			"Starbucks",
