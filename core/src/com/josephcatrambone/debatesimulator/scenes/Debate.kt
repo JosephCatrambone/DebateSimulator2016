@@ -14,8 +14,8 @@ import com.opencsv.CSVReader
 
 class Debate : Scene() {
 	val RESPONSE_TIME = 60f
-	val CHARACTER_DEBOUNCE = 10 // There must be at least this many character printed by the prompt before advancing.
-	val TEXT_SPEED_DIVISOR = 100f // We read PREFERENCES.getInteger("TEXT_SPEED") and divide by this for the chardelay.
+	val CHARACTER_DEBOUNCE = 5 // There must be at least this many character printed by the prompt before advancing.
+	val TEXT_SPEED_DIVISOR = 200f // We read PREFERENCES.getInteger("TEXT_SPEED") and divide by this for the chardelay.
 	val TRANSITION_TIME = 0.6f
 	val DEFOCUS_ALPHA = 0.3f
 	val PROCTOR_ACTIVE_Y = 480f-256 //stage.height*5/8
@@ -38,8 +38,7 @@ class Debate : Scene() {
 	val trump = Image(GDXMain.TEXTURE_ATLAS.findRegion("trump"))
 	val text = TextArea("", skin) // Use text.text, not text.messageText
 	val timer = ProgressBar(0f, RESPONSE_TIME, 0.01f, false, skin)
-	var currentCharacter = 0 // used when gradually showing the text.
-	var timeToNextCharacter = 0f
+	val textFeed = TextFeed(text, TEXT_SPEED_DIVISOR, CHARACTER_DEBOUNCE)
 
 	// Gameplay elements.
 	var playerSkipKey = false // Player has requested a skip.
@@ -167,7 +166,7 @@ class Debate : Scene() {
 		if(trumpResponding) {
 			timer.value = timer.value - delta // TODO: Is this meaningful here?
 			val s = trumpResponses.last()
-			val done = updateTextDisplay(delta, s)
+			val done = textFeed.updateTextDisplay(delta, s)
 			if(done) {
 				timer.value = RESPONSE_TIME
 				// Trump has finished his thing.  Select a new prompt at random.
@@ -195,7 +194,7 @@ class Debate : Scene() {
 			}
 		} else { // Proctor active.
 			val s = proctorQuestions.last()
-			val done = updateTextDisplay(delta, s)
+			val done = textFeed.updateTextDisplay(delta, s)
 			if(done) {
 				// Are we out of questions?
 				if(prompts.isEmpty()) {
@@ -260,32 +259,6 @@ class Debate : Scene() {
 			})
 		))
 		// TODO: Play sound.
-	}
-
-	fun updateTextDisplay(delta:Float, s:String): Boolean {
-		// Update the time.
-		timeToNextCharacter -= delta
-		if(timeToNextCharacter <= 0f || playerSkipKey) {
-			currentCharacter++
-
-			text.text = s.substring(0, minOf(s.length, currentCharacter))
-			timeToNextCharacter = GDXMain.PREFERENCES.getInteger("TEXT_SPEED")/TEXT_SPEED_DIVISOR
-		}
-
-		// Pick a prompt at random.
-		//if(currentCharacter > proctorQuestions.last().length)
-		// If the key is down, speed through the rest of the characters.  If released, go to next.
-		if(Gdx.input.isKeyPressed(Input.Keys.ANY_KEY) && currentCharacter > CHARACTER_DEBOUNCE) {
-			playerSkipKey = true
-			timeToNextCharacter = 0f
-		} else if(!Gdx.input.isKeyPressed(Input.Keys.ANY_KEY) && playerSkipKey) {
-			// Finish the text display process.
-			playerSkipKey = false
-			currentCharacter = 0
-			return true
-		}
-
-		return false
 	}
 
 	override fun dispose() {

@@ -261,6 +261,7 @@ class ElectionResults : Scene() {
 		val stateName:String
 		val population:Int
 		val electoralVotes:Int
+		val timezone:Int // GMT -x
 		val demographicDistribution:Map<Demographic,Float>
 
 		constructor(csvRow:Array<String>, demographics:List<Demographic>) {
@@ -269,6 +270,7 @@ class ElectionResults : Scene() {
 			state = UnitedState.valueOf(stateName.toUpperCase().filter { chr -> chr.isLetter() })
 			population = csvRow[1].toInt()
 			electoralVotes = csvRow[2].toInt()
+			timezone = csvRow[3].toInt()
 
 			val demoMap = mutableMapOf<Demographic,Float>()
 			demographics.forEachIndexed({ i, demo -> 
