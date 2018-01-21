@@ -10,10 +10,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.josephcatrambone.debatesimulator.GDXMain
+import com.josephcatrambone.debatesimulator.TextFeed
 
 class BriefingRoom : Scene() {
-	val CHARACTER_DEBOUNCE = 10 // There must be at least this many character printed by the prompt before advancing.
-	val TEXT_SPEED_DIVISOR = 100f // We read PREFERENCES.getInteger("TEXT_SPEED") and divide by this for the chardelay.
+	val TEXT_SPEED_DIVISOR = 200f // We read PREFERENCES.getInteger("TEXT_SPEED") and divide by this for the chardelay.
 
 	// Your campaign manager will say, "Here's what will happen.  These are the groups to be mindful of."
 	// Disclose the groups that like you the most, the groups that are biggest and like you the most.
@@ -26,9 +26,7 @@ class BriefingRoom : Scene() {
 	val table = Table()
 
 	val textArea = TextArea("", skin)
-	var timeToNextCharacter = 0f
-	var playerSkipKey = false
-	var currentCharacter = 0
+	val textStreamer = TextFeed(textArea, TEXT_SPEED_DIVISOR)
 
 	// Graphics assets.
 	val mgr = Image(GDXMain.TEXTURE_ATLAS.findRegion("campaign_manager"))
@@ -66,10 +64,25 @@ class BriefingRoom : Scene() {
 			linesToDeliver.add("Remember the time limit, try to wait for the whole question to finish, and don't feel obligated to stay on topic.  Your opponent won't.")
 		} else if(lastDebate == 1 || lastDebate == 2) {
 			linesToDeliver.add("Well done out there.")
-			linesToDeliver.add("Your polling numbers are strong | not strong | really bad.")
-			linesToDeliver.add("Right now, the demographic that's most supportive of you is [this].")
+			if(GDXMain.ELECTON_SCENE.getApprovalRating() > 0.5) {
+				linesToDeliver.add("Your polling numbers are above average.")
+			} else {
+				linesToDeliver.add("Your polling numbers are below average.")
+			}
+			val supporters = GDXMain.ELECTON_SCENE.getBiggestSupporters()
+			linesToDeliver.add("Right now, the demographic that's most supportive of you is ${supporters.demographicName}.")
+			if(supporters.sentimentTowardsPlayer < 0.5) {
+				linesToDeliver.add("But they still hate you.")
+			}
+			val detractors = GDXMain.ELECTON_SCENE.getBiggestDetractors()
+			linesToDeliver.add("Your biggest detractors are ${detractors.demographicName}")
+			if(detractors.sentimentTowardsPlayer > 0.5) {
+				linesToDeliver.add("But they don't hate you that much.")
+			} else {
+				linesToDeliver.add("Remember, ${detractors.demographicHelpText}")
+			}
 			if(lastDebate < 3) {
-				linesToDeliver.add("Remember, you've still got ${3 - lastDebate} debates left.")
+				linesToDeliver.add("You've still got ${3 - lastDebate} debates left.")
 			}
 		} else {
 			// We're out of debates.  Go to the election results.
@@ -80,7 +93,7 @@ class BriefingRoom : Scene() {
 
 	override fun update(delta: Float) {
 		Gdx.input.inputProcessor = stage
-		val done = updateTextDisplay(delta, linesToDeliver.first())
+		val done = textStreamer.updateTextDisplay(delta, linesToDeliver.first())
 		stage.act()
 
 		if(done) {
@@ -97,32 +110,5 @@ class BriefingRoom : Scene() {
 	override fun dispose() {
 		stage.dispose()
 		skin.dispose()
-	}
-
-	// Copied and pasted from debate because I'm a lazy shit:
-	fun updateTextDisplay(delta:Float, s:String): Boolean {
-		// Update the time.
-		timeToNextCharacter -= delta
-		if(timeToNextCharacter <= 0f || playerSkipKey) {
-			currentCharacter++
-
-			textArea.text = s.substring(0, minOf(s.length, currentCharacter))
-			timeToNextCharacter = GDXMain.PREFERENCES.getInteger("TEXT_SPEED")/TEXT_SPEED_DIVISOR
-		}
-
-		// Pick a prompt at random.
-		//if(currentCharacter > proctorQuestions.last().length)
-		// If the key is down, speed through the rest of the characters.  If released, go to next.
-		if(Gdx.input.isKeyPressed(Input.Keys.ANY_KEY) && currentCharacter > CHARACTER_DEBOUNCE) {
-			playerSkipKey = true
-			timeToNextCharacter = 0f
-		} else if(!Gdx.input.isKeyPressed(Input.Keys.ANY_KEY) && playerSkipKey) {
-			// Finish the text display process.
-			playerSkipKey = false
-			currentCharacter = 0
-			return true
-		}
-
-		return false
 	}
 }

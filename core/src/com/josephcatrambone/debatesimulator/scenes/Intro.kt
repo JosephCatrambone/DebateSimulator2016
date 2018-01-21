@@ -63,7 +63,7 @@ class Intro : Scene() {
 				fadeAmount = 1.0f
 				fadeDelay = 0f
 			}
-		} else if(fadeAmount <= 0f && fadeDirection == -1f) {
+		} else if(fadeAmount <= 1e-6f && fadeDirection == -1f) {
 			// We're faded out.  No delay.  Start fade in of next picture.
 			// Advance the image or, if there are no more to display, load title.
 			textureIndex += 1
@@ -77,6 +77,7 @@ class Intro : Scene() {
 			fadeDirection = 1f
 		} else {
 			fadeAmount += fadeDirection*delta
+			fadeAmount = minOf(1.0f, maxOf(0f, fadeAmount)) // Range cap to 0-1f
 		}
 	}
 

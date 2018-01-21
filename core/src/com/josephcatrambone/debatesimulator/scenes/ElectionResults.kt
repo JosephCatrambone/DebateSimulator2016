@@ -16,19 +16,28 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.josephcatrambone.debatesimulator.Demographic
 import com.josephcatrambone.debatesimulator.GDXMain
+import com.josephcatrambone.debatesimulator.TextFeed
 import com.josephcatrambone.debatesimulator.UnitedState
 import com.opencsv.CSVReader
 import java.io.InputStreamReader
 import java.io.ObjectInputStream
 import java.util.*
 import kotlin.math.abs
+import kotlin.math.roundToInt
 
 class ElectionResults : Scene() {
 	val CHARACTER_DEBOUNCE = 10 // There must be at least this many character printed by the prompt before advancing.
 	val TEXT_SPEED_DIVISOR = 100f // We read PREFERENCES.getInteger("TEXT_SPEED") and divide by this for the chardelay.
 
+	val EST_TIMEZONE = -5
+	val CST_TIMEZONE = -6
+	val MST_TIMEZONE = -7
+	val PST_TIMEZONE = -8
+	val START_TIMEZONE = EST_TIMEZONE // Atlantic.  This is before EST
+	val LAST_TIMEZONE = PST_TIMEZONE // Pacific time.
+
 	val random = Random()
-	var debugTemp = 0
+	var timezone = START_TIMEZONE // The election phase.
 
 	// Demographics
 	val antivaxers:Demographic
@@ -46,6 +55,7 @@ class ElectionResults : Scene() {
 	var popularVotes = 0
 	var electoralVotes = 0
 	val stateOutcomeInPlayerFavor = mutableMapOf<UnitedState,Boolean>()
+	val electionResults = mutableMapOf<UnitedState, Int>() // Votes in player favor.
 
 	// Our whole map.
 	var stateMap:Texture? = null
@@ -57,10 +67,9 @@ class ElectionResults : Scene() {
 	val skin = Skin(Gdx.files.internal("default_skin.json"))
 	val table = Table()
 
+	var currentText = "The first round of polls are coming in."
 	val textArea = TextArea("", skin)
-	var timeToNextCharacter = 0f
-	var playerSkipKey = false
-	var currentCharacter = 0
+	val textStream = TextFeed(textArea, TEXT_SPEED_DIVISOR)
 
 	init {
 		antivaxers = loadDemographic("antivax.demographic")
@@ -162,7 +171,7 @@ class ElectionResults : Scene() {
 
 		demographics.forEach({ dem ->
 			val delta = dem.updateSentiment(listOf(statement))
-			println("DEBUG: ${dem.demographicName} : $delta")
+			println("DEBUG: ${dem.demographicName} : ${dem.sentimentTowardsPlayer} : $delta")
 			if(abs(delta) > abs(maxChange)) {
 				maxChange = delta
 				maxDemographic = dem.demographicName
@@ -172,7 +181,7 @@ class ElectionResults : Scene() {
 		return Pair(maxDemographic, maxChange)
 	}
 
-	fun getElectionResults(): Map<UnitedState,Int> { // State -> Int, negative being lost by X amount, otherwise positive by Y votes.
+	fun calculateElectionResults(): Map<UnitedState,Int> { // State -> Int, negative being lost by X amount, otherwise positive by Y votes.
 		val stddev = 0.2f
 		val results = mutableMapOf<UnitedState,Int>()
 
@@ -183,8 +192,10 @@ class ElectionResults : Scene() {
 			val stateInfo = demographicAllocationByState[state]!!
 			demographics.forEach({ demographic ->
 				val possibleDemographicVotes = stateInfo.population * stateInfo.demographicDistribution.getOrElse(demographic, { -> 0f })
-				votesForPlayer += (possibleDemographicVotes * demographic.sentimentTowardsPlayer*(demographic.baseVotingLikelihood + random.nextFloat()*(demographic.baseVotingLikelihood*stddev))).toInt()
-				votesForOpponent += (possibleDemographicVotes * (1.0f-demographic.sentimentTowardsPlayer)*(demographic.baseVotingLikelihood + random.nextFloat()*(demographic.baseVotingLikelihood*stddev))).toInt()
+				//votesForPlayer += (possibleDemographicVotes * demographic.sentimentTowardsPlayer*(demographic.baseVotingLikelihood + random.nextFloat()*(demographic.baseVotingLikelihood*stddev))).toInt()
+				//votesForOpponent += (possibleDemographicVotes * (1.0f-demographic.sentimentTowardsPlayer)*(demographic.baseVotingLikelihood + random.nextFloat()*(demographic.baseVotingLikelihood*stddev))).toInt()
+				votesForPlayer += (possibleDemographicVotes * demographic.sentimentTowardsPlayer).roundToInt()
+				votesForOpponent += (possibleDemographicVotes * (1.0f-demographic.sentimentTowardsPlayer)).roundToInt()
 			})
 			//
 			results[state] = votesForPlayer-votesForOpponent
@@ -201,59 +212,93 @@ class ElectionResults : Scene() {
 		return approval / demographics.size
 	}
 
+	fun getBiggestSupporters(): Demographic {
+		var maxSentiment = 0f
+		var maxDemographic = demographics[0]
+		demographics.forEach({ demo ->
+			if(demo.sentimentTowardsPlayer > maxSentiment) {
+				maxSentiment = demo.sentimentTowardsPlayer
+				maxDemographic = demo
+			}
+		})
+		return maxDemographic
+	}
+
+	fun getBiggestDetractors(): Demographic {
+		var minSentiment = 1000f
+		var minDemographic = demographics[0]
+		demographics.forEach({ demo ->
+			if(demo.sentimentTowardsPlayer < minSentiment) {
+				minSentiment = demo.sentimentTowardsPlayer
+				minDemographic = demo
+			}
+		})
+		return minDemographic
+	}
+
 	override fun update(delta: Float) {
 		Gdx.input.inputProcessor = stage
 		stage.act()
 
-		debugTemp++
-		if(debugTemp%100 == 0) {
-			// Make a random map.
-			val electionResults = mutableMapOf<UnitedState,Color>()
-			electionResults[UnitedState.values()[(debugTemp/100)%50]] = when (random.nextInt(2)) {
-				0 -> Color.BLUE
-				1 -> Color.RED
-				else -> {
-					throw Exception("Election Results: This can't happen.  3 > 2")
+		val done = textStream.updateTextDisplay(delta, currentText)
+		if(done) {
+			step()
+		}
+	}
+
+	fun step() {
+		when(timezone) {
+			START_TIMEZONE -> {
+				// First step.  Calculate the election results.
+			}
+			EST_TIMEZONE -> {
+				electionResults.putAll(calculateElectionResults())
+				currentText = "The results from the Eastern states are coming in."
+			}
+			CST_TIMEZONE -> {
+				currentText = "Looks like you took "
+				val winningStates = electionResults.filter { stateCount -> stateCount.value > 0 }
+				val winningCSTStates = winningStates.filter { stateCount -> demographicAllocationByState[stateCount.key]!!.timezone == CST_TIMEZONE }.keys
+				if(winningCSTStates.size > 0) {
+					currentText += winningCSTStates.first().name
+				} else {
+					currentText += " nothing, you dumb fuck."
 				}
 			}
-			stateMap?.dispose()
-			stateMap = colorMap(electionResults)
-			stateMapImage.drawable = TextureRegionDrawable(TextureRegion(stateMap))
-			stateMapImage.width = stateMap!!.width.toFloat()
-			stateMapImage.height = stateMap!!.height.toFloat()
+			MST_TIMEZONE -> {
+				currentText = "Nobody cares about the Mountain Time Zone."
+			}
+			PST_TIMEZONE -> {
+				currentText = "And the west coast is surprisingly on time."
+			}
+			else -> {
+				// Reset this for the next run-through.
+				// HACK: We're just making another.  :/
+				GDXMain.ELECTON_SCENE = ElectionResults()
+				this.dispose()
+				GDXMain.ACTIVE_SCENE = GDXMain.INTRO_SCENE
+				// TODO: Better finish.
+			}
 		}
+
+		// Make a random map.
+		stateMap?.dispose()
+		stateMap = colorMap(electionResults.filter({ state ->
+			demographicAllocationByState[state.key]!!.timezone >= timezone
+		}).map { stateCountTuple ->
+			Pair(stateCountTuple.key, if(stateCountTuple.value > 0) { Color.BLUE } else { Color.RED }) }.toMap()
+		)
+		stateMapImage.drawable = TextureRegionDrawable(TextureRegion(stateMap))
+		stateMapImage.width = stateMap!!.width.toFloat()
+		stateMapImage.height = stateMap!!.height.toFloat()
+
+		// Advance the state.
+		timezone-- // Going backwards.
 	}
 
 	override fun dispose() {
 		stateMap?.dispose()
 		skin.dispose()
-	}
-
-	// Copied and pasted from debate because I'm a lazy shit:
-	fun updateTextDisplay(delta:Float, s:String): Boolean {
-		// Update the time.
-		timeToNextCharacter -= delta
-		if(timeToNextCharacter <= 0f || playerSkipKey) {
-			currentCharacter++
-
-			textArea.text = s.substring(0, minOf(s.length, currentCharacter))
-			timeToNextCharacter = GDXMain.PREFERENCES.getInteger("TEXT_SPEED")/TEXT_SPEED_DIVISOR
-		}
-
-		// Pick a prompt at random.
-		//if(currentCharacter > proctorQuestions.last().length)
-		// If the key is down, speed through the rest of the characters.  If released, go to next.
-		if(Gdx.input.isKeyPressed(Input.Keys.ANY_KEY) && currentCharacter > CHARACTER_DEBOUNCE) {
-			playerSkipKey = true
-			timeToNextCharacter = 0f
-		} else if(!Gdx.input.isKeyPressed(Input.Keys.ANY_KEY) && playerSkipKey) {
-			// Finish the text display process.
-			playerSkipKey = false
-			currentCharacter = 0
-			return true
-		}
-
-		return false
 	}
 
 	class StateDemographicInfo {
@@ -274,7 +319,7 @@ class ElectionResults : Scene() {
 
 			val demoMap = mutableMapOf<Demographic,Float>()
 			demographics.forEachIndexed({ i, demo -> 
-				demoMap[demo] = csvRow[3+i].toFloat()
+				demoMap[demo] = csvRow[4+i].toFloat()
 			})
 			demographicDistribution = demoMap
 		}
