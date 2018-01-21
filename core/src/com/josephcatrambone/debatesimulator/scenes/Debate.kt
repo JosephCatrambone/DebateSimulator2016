@@ -18,8 +18,11 @@ class Debate : Scene() {
 	val TEXT_SPEED_DIVISOR = 200f // We read PREFERENCES.getInteger("TEXT_SPEED") and divide by this for the chardelay.
 	val TRANSITION_TIME = 0.6f
 	val DEFOCUS_ALPHA = 0.3f
-	val PROCTOR_ACTIVE_Y = 480f-256 //stage.height*5/8
-	val PROCTOR_DEFOCUS_Y = -300f
+	val PROCTOR_ACTIVE_X = (640.0f/2.0f)-68f //stage.width - portrait width/2
+	val PROCTOR_ACTIVE_Y = 480f-160f // Alignment is fucked for reasons I can't understand.  Just hack it.
+	val PROCTOR_DEFOCUS_X = 900f
+	val PROCTOR_DEFOCUS_Y = PROCTOR_ACTIVE_Y
+	val PROCTOR_EASE = 0.9f
 	val PLAYER_FEEDBACK_LABEL_START = Pair(-50f, 480f-150f)
 	val PLAYER_FEEDBACK_LABEL_END = Pair(100f, PLAYER_FEEDBACK_LABEL_START.second) // Only X motion.
 	val FEEDBACK_DROP_SHADOW_DISTANCE = 2f
@@ -84,7 +87,7 @@ class Debate : Scene() {
 		text.layout()
 
 		// Fire first question.
-		proctor.setPosition(stage.width/2, PROCTOR_DEFOCUS_Y, Align.center)
+		proctor.setPosition(PROCTOR_DEFOCUS_X, PROCTOR_DEFOCUS_Y, Align.center)
 		proctor.setAlign(Align.center)
 		stage.addActor(proctor)
 		stage.setKeyboardFocus(text)
@@ -124,7 +127,8 @@ class Debate : Scene() {
 		// Fade out the player, fade in Trump, move away the proctor.
 		TweenManager.add(BasicTween(TRANSITION_TIME, player.color.a, DEFOCUS_ALPHA, { f -> player.setColor(1.0f, 1.0f, 1.0f, f)}))
 		TweenManager.add(BasicTween(TRANSITION_TIME, trump.color.a, 1.0f, { f -> trump.setColor(1.0f, 1.0f, 1.0f, f)}))
-		TweenManager.add(BasicTween(TRANSITION_TIME, proctor.y, PROCTOR_DEFOCUS_Y, { f -> proctor.y = f }))
+		TweenManager.add(EaseTween(TRANSITION_TIME, proctor.x, PROCTOR_DEFOCUS_X, PROCTOR_EASE, { f -> proctor.x = f }))
+		TweenManager.add(EaseTween(TRANSITION_TIME, proctor.y, PROCTOR_DEFOCUS_Y, PROCTOR_EASE, { f -> proctor.y = f }))
 		text.isDisabled = true
 		text.text = ""
 	}
@@ -133,7 +137,8 @@ class Debate : Scene() {
 		playerResponding = true
 		TweenManager.add(BasicTween(TRANSITION_TIME, player.color.a, 1.0f, { f -> player.setColor(1.0f, 1.0f, 1.0f, f)}))
 		TweenManager.add(BasicTween(TRANSITION_TIME, trump.color.a, DEFOCUS_ALPHA, { f -> trump.setColor(1.0f, 1.0f, 1.0f, f)}))
-		TweenManager.add(BasicTween(TRANSITION_TIME, proctor.y, PROCTOR_DEFOCUS_Y, { f -> proctor.y = f }))
+		TweenManager.add(EaseTween(TRANSITION_TIME, proctor.x, PROCTOR_DEFOCUS_X, PROCTOR_EASE, { f -> proctor.x = f }))
+		TweenManager.add(EaseTween(TRANSITION_TIME, proctor.y, PROCTOR_DEFOCUS_Y, PROCTOR_EASE, { f -> proctor.y = f }))
 		text.isDisabled = false
 		text.text = ""
 	}
@@ -144,7 +149,8 @@ class Debate : Scene() {
 		// Fade out both contestants and tween in the proctor.
 		TweenManager.add(BasicTween(TRANSITION_TIME, player.color.a, DEFOCUS_ALPHA, { f -> player.setColor(1.0f, 1.0f, 1.0f, f)}))
 		TweenManager.add(BasicTween(TRANSITION_TIME, trump.color.a, DEFOCUS_ALPHA, { f -> trump.setColor(1.0f, 1.0f, 1.0f, f)}))
-		TweenManager.add(BasicTween(TRANSITION_TIME, proctor.y, PROCTOR_ACTIVE_Y, { f -> proctor.y = f }))
+		TweenManager.add(EaseTween(TRANSITION_TIME, proctor.x, PROCTOR_ACTIVE_X, PROCTOR_EASE, { f -> proctor.x = f }))
+		TweenManager.add(EaseTween(TRANSITION_TIME, proctor.y, PROCTOR_ACTIVE_Y, PROCTOR_EASE, { f -> proctor.y = f }))
 		text.isDisabled = true
 		text.text = ""
 	}
