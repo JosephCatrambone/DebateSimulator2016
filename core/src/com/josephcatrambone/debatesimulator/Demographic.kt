@@ -3,6 +3,7 @@ package com.josephcatrambone.debatesimulator
 import com.josephcatrambone.debatesimulator.nlp.MultinomialNBClassifier
 import com.josephcatrambone.debatesimulator.nlp.Tokenizer
 import java.io.Serializable
+import kotlin.math.exp
 
 class Demographic(
 	val baseVotingLikelihood:Float, // The odds that a member of this group will case a vote.
@@ -17,28 +18,20 @@ class Demographic(
 		private val serialVersionUid: Long = 1678148210794L
 	}
 
-	fun updateSentiment(statements:List<String>): Float { // Returns net change in sentiment.  0 -> 1 really dislike to really like.
-		val startSentiment = sentimentTowardsPlayer
-
+	fun updateSentiment(statement:String): Float { // Returns net change in sentiment.  0 -> 1 really dislike to really like.
 		var deltaSentiment = 0.0f
-		var dislikeAccumulator = 0.0f
-		var likeAccumulator = 0.0f
-		val tokens = tokenizer.run(statements.toTypedArray())
-		val preds = tokens.map { tok -> likePlayerClassifier.probabilities(tok) }
+		val tokens = tokenizer.run(statement)
+		val preds = likePlayerClassifier.probabilities(tokens)
 
-		// TODO: Maybe we should take the max sentiment and not the average sentiment.
-		preds.forEach({sentimentClasses ->
-			dislikeAccumulator += sentimentClasses[0]
-			likeAccumulator += sentimentClasses[1]
-		})
-		// Roll it all together using some maths.
-		dislikeAccumulator /= preds.size
-		likeAccumulator /= preds.size
+		if(tokens.sum() > 0) {
+			val rawDislike = preds[0]
+			val rawLike = preds[1]
 
-		// Half old sentiment.  Half new.
-		val newSentiment = sentimentTowardsPlayer*0.5f + (-dislikeAccumulator + likeAccumulator)*0.5f
-		deltaSentiment = newSentiment - startSentiment
-		sentimentTowardsPlayer = newSentiment
+			deltaSentiment = exp(rawLike) - exp(rawDislike)
+
+			// Half old sentiment.  Half new.
+			sentimentTowardsPlayer += deltaSentiment
+		}
 		return deltaSentiment
 	}
 }

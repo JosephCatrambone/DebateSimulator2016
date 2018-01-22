@@ -97,7 +97,9 @@ class MultinomialNBClassifierTest {
 			"We must follow the guidance of evidence based medicine.",
 			"It is abhorrent that we should subject our children to preventable diseases.",
 			"I believe in the importance of vaccination.",
-			"Each of us has a social obligation to support herd immunity."
+			"Each of us has a social obligation to support herd immunity.",
+			"Every child needs to be vaccinated.",
+			"Herd immunity is an important aspect of modern society.  We have a social obligation to maintain it."
 		)
 
 		val likeStatements = arrayOf(
@@ -215,11 +217,23 @@ class MultinomialNBClassifierTest {
 				"Gun violence is the leading cause of deaths in the developed world.",
 				"Bans significantly reduce gun violence.",
 				"Gun buyback programs have been shown effective in other countries.",
-				"We can't let more innocent children be killed by school shootings."
+				"We can't let more innocent children be killed by school shootings.",
+				"I support gun control.",
+				"Guns are directly linked to thousands of preventable deaths each year.",
+				"The second amendment is antiquated.  It was meant for an older time with less powerful weapons.",
+				"The 2nd amendment is no longer relevant in today's society."
 		)
 
 		val likeStatements = arrayOf(
-				"Man, I love guns.",
+				"I am pro second amendment.",
+				"I am pro-second amendment.",
+				"I'm a big fan of the 2nd amendment.",
+				"I'm a supporter of 2nd amendment rights.",
+				"I support a person's right to bear arms.",
+				"Guns kick ass.",
+				"Kill 'em all",
+				"Guns are great.",
+				"I love guns.",
 				"I bought a gun for my guns.",
 				"I believe in our second amendment rights.",
 				"Gun control is for wusses.",
@@ -246,7 +260,7 @@ class MultinomialNBClassifierTest {
 			"They really love guns.  Try not to say 'buyback' or 'violence' or 'shootings'."
 		)
 
-		val dSentiment = gunNuts.updateSentiment(listOf("Guns are for morons.", "Farmers love guns.", "Violence is bad."))
+		val dSentiment = gunNuts.updateSentiment("Guns are for morons.")
 
 		saveDemographic(gunNuts, "gunnuts.demographic")
 	}
@@ -271,9 +285,7 @@ class MultinomialNBClassifierTest {
 			"We draw the line against misconduct, not against wealth. The capitalist who, alone or in conjunction with his fellows, performs some great industrial feat by which he wins money is a welldoer, not a wrongdoer, provided only he works in proper and legitimate lines.",
 			"In curbing and regulating the combinations of capital which are, or may become, injurious to the public we must be careful not to stop the great enterprises which have legitimately reduced the cost of production, not to abandon the place which our country has won in the leadership of the international industrial world, not to strike down wealth with the result of closing factories and mines, of turning the wage-worker idle in the streets and leaving the farmer without a market for what he grows.",
 			"No more important subject can come before the Congress than this of the regulation of interstate business.",
-			"""I believe that monopolies, unjust discriminations, which prevent or cripple competition, fraudulent overcapitalization, and other evils in trust organizations and practices which injuriously affect interstate trade can be prevented under the power of the Congress to "regulate commerce with foreign nations and among the several States" through regulations and requirements operating directly upon such commerce, the instrumentalities thereof, and those engaged therein.""",
-			"",
-		""
+			"""I believe that monopolies, unjust discriminations, which prevent or cripple competition, fraudulent overcapitalization, and other evils in trust organizations and practices which injuriously affect interstate trade can be prevented under the power of the Congress to "regulate commerce with foreign nations and among the several States" through regulations and requirements operating directly upon such commerce, the instrumentalities thereof, and those engaged therein."""
 		)
 		val dislikeStatements = arrayOf<String>(
 			"The administration took this action with great regret, because it's clear that the massive deficits our government runs is one of the root causes of our profound economic problems, and for too many years this process has come too easily for us.",
@@ -306,7 +318,7 @@ class MultinomialNBClassifierTest {
 				"Favor a larger government.  They believe the purpose of government is to make a level playing field, to protect consumers, and to provide a social safety net."
 		)
 
-		val dSentiment = liberalDemographic.updateSentiment(listOf("Guns are for morons.", "Farmers love guns.", "Violence is bad."))
+		val dSentiment = liberalDemographic.updateSentiment("Violence is bad.")
 
 		saveDemographic(liberalDemographic, "liberal.demographic")
 	}

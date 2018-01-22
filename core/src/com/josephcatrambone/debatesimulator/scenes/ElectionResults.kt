@@ -1,7 +1,6 @@
 package com.josephcatrambone.debatesimulator.scenes
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.Pixmap
@@ -34,7 +33,7 @@ class ElectionResults : Scene() {
 	val MST_TIMEZONE = -7
 	val PST_TIMEZONE = -8
 	val START_TIMEZONE = EST_TIMEZONE // Atlantic.  This is before EST
-	val LAST_TIMEZONE = PST_TIMEZONE // Pacific time.
+	val LAST_TIMEZONE = PST_TIMEZONE-1 // Pacific time.
 
 	val random = Random()
 	var timezone = START_TIMEZONE // The election phase.
@@ -169,8 +168,9 @@ class ElectionResults : Scene() {
 		var maxChange = 0f
 		var maxDemographic = ""
 
+		println("\nUpdating demographics for phrase \"$statement\"...")
 		demographics.forEach({ dem ->
-			val delta = dem.updateSentiment(listOf(statement))
+			val delta = dem.updateSentiment(statement)
 			println("DEBUG: ${dem.demographicName} : ${dem.sentimentTowardsPlayer} : $delta")
 			if(abs(delta) > abs(maxChange)) {
 				maxChange = delta
@@ -248,28 +248,21 @@ class ElectionResults : Scene() {
 
 	fun step() {
 		when(timezone) {
-			START_TIMEZONE -> {
-				// First step.  Calculate the election results.
-			}
 			EST_TIMEZONE -> {
 				electionResults.putAll(calculateElectionResults())
-				currentText = "The results from the Eastern states are coming in."
+				currentText = ""
 			}
 			CST_TIMEZONE -> {
-				currentText = "Looks like you took "
-				val winningStates = electionResults.filter { stateCount -> stateCount.value > 0 }
-				val winningCSTStates = winningStates.filter { stateCount -> demographicAllocationByState[stateCount.key]!!.timezone == CST_TIMEZONE }.keys
-				if(winningCSTStates.size > 0) {
-					currentText += winningCSTStates.first().name
-				} else {
-					currentText += " nothing, you dumb fuck."
-				}
+
 			}
 			MST_TIMEZONE -> {
-				currentText = "Nobody cares about the Mountain Time Zone."
 			}
 			PST_TIMEZONE -> {
-				currentText = "And the west coast is surprisingly on time."
+			}
+			LAST_TIMEZONE -> {
+				// TODO: Closing comments.
+
+				currentText = "Congratulations / Fuck you."
 			}
 			else -> {
 				// Reset this for the next run-through.
@@ -278,6 +271,23 @@ class ElectionResults : Scene() {
 				this.dispose()
 				GDXMain.ACTIVE_SCENE = GDXMain.INTRO_SCENE
 				// TODO: Better finish.
+			}
+		}
+
+		if(timezone != LAST_TIMEZONE) {
+			currentText = "Looks like you've taken "
+			val winningStates = electionResults.filter { stateCount -> stateCount.value > 0 }
+			val winningCSTStates = winningStates.filter { stateCount -> demographicAllocationByState[stateCount.key]!!.timezone == timezone }.keys
+			if(winningCSTStates.size > 0) {
+				currentText += winningCSTStates.first().name
+				currentText += when(random.nextInt(3)) {
+					0 -> ".  Yay."
+					1 -> ". Congratulations."
+					2 -> ". Whoopy shit."
+					else -> { "." }
+				}
+			} else {
+				currentText += " nothing in GMT$timezone, you dumb fuck."
 			}
 		}
 

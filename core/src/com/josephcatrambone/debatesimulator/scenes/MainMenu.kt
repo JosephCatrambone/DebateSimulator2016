@@ -38,6 +38,7 @@ class MainMenu : Scene() {
 
 	// Options menu
 	val textSpeedSlider = Slider(0.0f, 10f, 1.0f, false, skin)
+	val upscaleCheckbox = CheckBox(" 2x Upscale", skin)
 
 	val optionsTable = Table()
 
@@ -47,17 +48,17 @@ class MainMenu : Scene() {
 		stage.addActor(backdrop)
 
 		// Set up main menu.
-		mainMenuTable.add(newGameButton)
+		mainMenuTable.add(newGameButton).fillX()
 		mainMenuTable.row()
 		if(false) {
 			mainMenuTable.add(newGamePlusButton)
 			mainMenuTable.row()
 		}
-		mainMenuTable.add(optionsButton)
+		mainMenuTable.add(optionsButton).fillX()
 		mainMenuTable.row()
-		mainMenuTable.add(creditsButton)
+		mainMenuTable.add(creditsButton).fillX()
 		mainMenuTable.row()
-		mainMenuTable.add(quitButton)
+		mainMenuTable.add(quitButton).fillX()
 		mainMenuTable.row()
 
 		mainMenuTable.setFillParent(true)
@@ -69,10 +70,9 @@ class MainMenu : Scene() {
 		optionsTable.add(textSpeedSlider)
 		optionsTable.add(Label(" (Fast)", skin))
 		optionsTable.row()
+		optionsTable.add(upscaleCheckbox)
+		optionsTable.row()
 		optionsTable.add(backButton1)
-		optionsTable.add()
-		optionsTable.add()
-		optionsTable.add()
 		optionsTable.row()
 
 		optionsTable.setFillParent(true)
@@ -91,7 +91,9 @@ class MainMenu : Scene() {
 		creditsTable.row()
 		creditsTable.add()
 		creditsTable.row()
-		creditsTable.add(Label("Campaign manager stolen from Afal.  Sorry. :(", skin))
+		creditsTable.add(Label("Campaign manager:", skin))
+		creditsTable.row()
+		creditsTable.add(Label("Stolen from Afal.  Sorry Afal.  :(", skin))
 		creditsTable.row()
 		creditsTable.add(backButton2)
 		creditsTable.row()
@@ -172,6 +174,23 @@ class MainMenu : Scene() {
 			override fun changed(event: ChangeEvent?, actor: Actor?) {
 				actor as Slider
 				PREFERENCES.putInteger("TEXT_SPEED", 10-actor.value.roundToInt())
+			}
+		})
+
+		upscaleCheckbox.addListener(object : ChangeListener() {
+			override fun changed(event: ChangeEvent?, actor: Actor?) {
+				actor as CheckBox
+				var width:Int
+				var height:Int
+				if(actor.isChecked) {
+					width = 640*2
+					height = 480*2
+				} else {
+					width = 640
+					height = 480
+				}
+				Gdx.graphics.setWindowedMode(width, height)
+				stage.getViewport().update(width, height, true);
 			}
 		})
 	}

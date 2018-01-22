@@ -9,8 +9,8 @@ import com.badlogic.gdx.tools.texturepacker.TexturePacker;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
-		System.out.println("DEBUG: Packing textures into atlas.  Remove this before release.");
-		packTextures();
+		//System.out.println("DEBUG: Packing textures into atlas.  Remove this before release.");
+		//packTextures();
 
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.width = 640;

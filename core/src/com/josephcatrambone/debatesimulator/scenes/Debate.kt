@@ -11,10 +11,11 @@ import com.badlogic.gdx.utils.viewport.FitViewport
 import com.josephcatrambone.debatesimulator.*
 import com.josephcatrambone.debatesimulator.nlp.*
 import com.opencsv.CSVReader
+import kotlin.math.abs
 
 class Debate : Scene() {
+	val MIN_USER_RESPONSE_CHARS = 2
 	val RESPONSE_TIME = 60f
-	val CHARACTER_DEBOUNCE = 5 // There must be at least this many character printed by the prompt before advancing.
 	val TEXT_SPEED_DIVISOR = 200f // We read PREFERENCES.getInteger("TEXT_SPEED") and divide by this for the chardelay.
 	val TRANSITION_TIME = 0.6f
 	val DEFOCUS_ALPHA = 0.3f
@@ -41,7 +42,7 @@ class Debate : Scene() {
 	val trump = Image(GDXMain.TEXTURE_ATLAS.findRegion("trump"))
 	val text = TextArea("", skin) // Use text.text, not text.messageText
 	val timer = ProgressBar(0f, RESPONSE_TIME, 0.01f, false, skin)
-	val textFeed = TextFeed(text, TEXT_SPEED_DIVISOR, CHARACTER_DEBOUNCE)
+	val textFeed = TextFeed(text, TEXT_SPEED_DIVISOR)
 
 	// Gameplay elements.
 	var playerSkipKey = false // Player has requested a skip.
@@ -184,7 +185,7 @@ class Debate : Scene() {
 		} else if(playerResponding) {
 			timer.value = timer.value - delta
 			// Ready to submit?
-			if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || timer.value <= 0f) {
+			if((text.text.length >= MIN_USER_RESPONSE_CHARS && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) || timer.value <= 0f) {
 				// Finish and submit our response.
 				// TODO: Do we want to split this by sentence?
 				val (demo, change) = GDXMain.ELECTON_SCENE.updateAllDemographics(text.text)
@@ -216,14 +217,14 @@ class Debate : Scene() {
 
 	private fun showDemographicFeedbackPopup(demo: String, change: Float) {
 		// Create a label, add it to the actors, create a tween where it pops up, play a sound.
-		var deltaText = "$demo: "
+		var deltaText = ""
 		var popupColor = Color(0.1f, 0.1f, 0.1f, 1f)
 
 		if(change > 0) {
-			deltaText += "+%.2f".format(change)
+			deltaText += "+$demo"
 			popupColor = Color(0.1f, 1.0f, 0.1f, 1.0f)
 		} else if(change < 0) {
-			deltaText += "%.2f".format(change)
+			deltaText += "-$demo"
 			popupColor = Color(1.0f, 0.1f, 0.1f, 1.0f)
 		} else {
 			println("DEBUG: Statement did not change demographics.  What the fuck?")
