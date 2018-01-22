@@ -180,8 +180,8 @@ class MainMenu : Scene() {
 		upscaleCheckbox.addListener(object : ChangeListener() {
 			override fun changed(event: ChangeEvent?, actor: Actor?) {
 				actor as CheckBox
-				var width:Int
-				var height:Int
+				val width:Int
+				val height:Int
 				if(actor.isChecked) {
 					width = 640*2
 					height = 480*2
